@@ -382,3 +382,91 @@ body::-webkit-scrollbar-thumb:hover {
 body::-webkit-scrollbar:hover, ::-webkit-scrollbar:active {
 	width: 10px !important;
 }
+
+
+.field-section {
+	padding: 18px 16px 38px 18px;
+}
+
+.field-section-heading {
+	margin: 24px 0;
+}
+
+.field-value {
+	color: #BDFF02; font-weight: 600;
+} 
+
+.field-value-alt {
+	font-size: 16px; font-weight: 600;
+}
+
+.field-section-title {
+	font-size: 18px; font-weight: 600;
+}
+
+.field-icon {
+	width: 27px;
+	height: 27px;
+	font-size: 19px;
+	text-align: center;
+	font-weight: 500;
+}
+
+.field-container {
+	margin: 16px 0;
+}
+.field-title {
+	color: #ddd;
+	margin-bottom: 9px;
+}
+
+.field-wrap {
+	flex-wrap: wrap;
+}
+
+.input-error {
+	font-size: 14px;
+	color: red; 
+	padding-left: 1px;
+}
+
+.max-button {
+	min-width: 28px;
+}
+
+.field-section-alt {
+	padding: 21px 14px 21px 21px;
+	background: #1E233C;
+}
+
+input.large {
+	background: #1E233C;
+	border: 1px #353B5C solid;
+	border-radius: 8px;
+	height: 65px;
+	font-size: 24px;
+	font-weight: 400;
+	color: white;
+	padding: 12px 14px;
+	width: 100%;
+	margin: 5px 0;
+}
+
+input, textarea {
+    background: #1E233C;
+    border: 1px #353B5C solid;
+    border-radius: 8px;
+    height: 51px;
+    font-size: 16px;
+    font-weight: 400;
+    color: white;
+    padding: 12px 14px;
+    width: 100%;
+    margin: 5px 0;
+    transition: border-color 0.25s ease-in-out; 
+}
+
+.card-header-background {
+	background: no-repeat url('https://cdn.jsdelivr.net/gh/SmartTokenLabs/resources/images/sln/sln-silk-background.png');
+	background-size: 100% 560px;
+}

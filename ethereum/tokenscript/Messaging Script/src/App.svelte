@@ -8,14 +8,16 @@
 	import NotFound from './routes/NotFound.svelte';
 
 	import Friendship from './routes/Friendship.svelte';
+	import Trade from './routes/Trade.svelte';
 
 	let token: ITokenContextData;
 	let initialised = false;
 
 	const routingMap = {
 		'#messages': Messages,
-		'#friendship': Friendship,
-		'#info': Info
+		'#friendship': Trade,
+		'#info': Info,
+		'#trade': Trade,
 	};
 
 	let page;
