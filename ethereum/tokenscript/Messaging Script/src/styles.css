@@ -1,0 +1,384 @@
+
+@font-face {
+	font-family: 'ClassicComic';
+	src: url('https://viewer-staging.tokenscript.org/assets/tokenscripts/smart-cat/fonts/ClassicComic.woff') format("woff2-variations");
+}
+
+.mint-container * {
+	font-family: "ClassicComic", "Helvetica", sans-serif !important;
+}
+
+* {
+	font-family: "Rubik", sans-serif;
+	box-sizing: border-box;
+}
+
+body {
+	text-align: center;
+	color: #0B0B0B;
+	margin: 0;
+	padding: 5px;
+	min-height: 100dvh;
+}
+
+body, body > div, #token-container {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+/* TODO: temp fix, content should be in here */
+.token-card {
+	display: none;
+}
+
+html {
+	min-height: 100dvh;
+}
+
+h1 {
+	font-size: 22px;
+}
+
+h2 {
+	font-size: 20px;
+}
+
+h3 {
+	font-size: 18px;
+}
+
+h5 {
+	font-size: 16px;
+	margin-bottom: 12px;
+}
+
+p.light {
+	color: #545454;
+}
+
+.cat-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.cat-list-item {
+	width: 100%;
+	margin: 6px 0;
+	display: flex;
+	cursor: pointer;
+	overflow: hidden;
+	height: 64px;
+	position: relative;
+	border-radius: 8px;
+	border: 1px solid #DDD;
+	background: #FFFEFE;
+	box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+}
+
+.cat-list-item.cant-play {
+	opacity: 0.7;
+}
+
+.cat-list-item.selected {
+	background-color: #8A9CB81F;
+}
+
+.cat-list-info {
+	flex-grow: 1;
+	text-align: left;
+	padding: 10px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 8px;
+}
+
+.cat-list-title {
+	display: flex;
+	align-items: center;
+	font-size: 14px;
+}
+
+.cat-list-info h4 {
+	flex-grow: 1;
+	margin: 0;
+	font-weight: 600;
+}
+
+.eth-address {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 100%;
+	display: block;
+	font-size: 12px;
+}
+
+.loader-modal {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.score-box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	flex: 1 0 0;
+}
+
+.score-box label {
+	font-size: 16px;
+	color: #8B8B8B;
+}
+
+.score-box span {
+	font-weight: 600;
+	color: #011aff;
+}
+
+.form-field {
+	position: relative;
+	margin: 25px auto;
+	height: 50px;
+	width: 100%;
+	max-width: 300px;
+}
+
+.form-field.full-width {
+	max-width: unset !important;
+}
+
+.form-field label {
+	position: absolute;
+	left: 12px;
+	top: 12px;
+	transition: all 0.3s ease;
+	font-size: 16px;
+	color: #969696;
+	background: #fff;
+	padding: 2px 4px;
+}
+
+.form-field input {
+	background-color: transparent;
+	padding: 16px 12px;
+	border: 1px solid #969696;
+	border-radius: 4px;
+	width: 100%;
+}
+
+.form-field input:focus + label, input:not(:placeholder-shown) ~ label {
+	top: -8px;
+	font-size: 12px;
+	color: #011aff;
+}
+
+.form-field input:focus {
+	outline: 0;
+	border-color: #011aff !important;
+}
+
+input:focus:invalid {
+	border-color: red !important;
+}
+
+input:focus:invalid + label {
+	color: red !important;
+}
+
+.link-button a, .link-button div {
+	height: 56px;
+	padding: 0 24px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 10px;
+	border: 2px solid #011aff;
+	color: #011aff;
+	font-size: 16px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.btn {
+	height: 40px;
+	padding: 0 16px;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+.primary-btn {
+	color: #fff;
+	background: linear-gradient(235deg, #001AFF 37.73%, #4F95FF 118.69%);
+
+}
+.primary-btn:hover {
+	background: linear-gradient(214.82deg, #001AFF -21.14%, #4F95FF 89.22%);
+}
+
+.primary-btn:disabled {
+	background: linear-gradient(235deg, rgba(0, 26, 255, 0.5) 37.73%, rgba(79, 149, 255, 0.5) 118.69%) !important;
+	cursor: not-allowed;
+}
+
+.secondary-btn {
+	background: #fff;
+	border: 2px solid #011aff;
+	color: #011aff;
+}
+
+.secondary-btn:hover {
+	border-color: #0f28ff;
+	color: #0f28ff;
+}
+
+.cancel-btn {
+	color: #fff;
+	background: linear-gradient(214.82deg, #ff0000 37.73%, #ff4f4f 118.69%);
+}
+
+.cancel-btn:hover {
+	background: linear-gradient(235deg, #ff0000 -21.14%, #ff4f4f 89.22%);
+}
+
+.blank-btn {
+	color: #000000;
+	border: 1px solid #DDDDDD;
+	border-image-source: linear-gradient(0deg, #DDDDDD, #DDDDDD), linear-gradient(0deg, #CECECE, #CECECE);
+	background: #fff;
+}
+.blank-btn:hover {
+
+}
+
+.large-btn {
+	height: 56px !important;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.fade-in-out {
+	animation: fadeInOut 1s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+	0%, 100% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+body:has(.game-container.popover-open){
+	overflow: hidden;
+}
+
+.button-bar {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin: 0 15px;
+}
+
+.moves-form {
+	position: relative;
+	margin: 0 auto;
+	padding: 0 15px;
+}
+
+:root {
+	--mdc-theme-primary: #011aff;
+	--mdc-theme-secondary: #011aff;
+}
+
+.mdc-radio__background .mdc-radio__outer-circle {
+	border-color: #011aff !important;
+}
+
+.mdc-radio .mdc-radio__native-control:focus:invalid+.mdc-radio__background .mdc-radio__outer-circle {
+	border-color: red !important;
+}
+
+.mdc-slider__thumb-knob {
+	border-color: transparent !important;
+}
+
+.status-banner {
+	margin-top: 0;
+	padding: 16px;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 50px;
+	border: 1px solid;
+}
+
+.balance-banner {
+	margin-bottom: 20px;
+	background-color: #FFF0F1;
+	border-color:  #D93F45;
+}
+.balance-banner p {
+	margin: 0 0 5px;
+}
+
+.tabs {
+	padding: 10px;
+}
+.tabs-header {
+	display: flex;
+	align-items: center;
+	padding: 20px 0;
+	gap: 20px;
+}
+.tab-item {
+	font-size: 18px;
+	font-style: normal;
+	font-weight: 500;
+	color: #8B8B8B;
+	cursor: pointer;
+}
+.tab-item.selected {
+	color: #001AFF;
+}
+
+::-webkit-scrollbar {
+	width: 5px;
+	background: #fff;
+	border: 1px solid #fff;
+	position: absolute;
+	right: 0;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #696866;
+	-webkit-border-radius: 5px;
+
+}
+
+body::-webkit-scrollbar-thumb:hover {
+	width: 10px !important;
+}
+
+::-webkit-scrollbar-corner {
+	background: #000;
+}
+
+::-webkit-scrollbar-track {
+	position: absolute;
+	right: 0;
+}
+
+body::-webkit-scrollbar:hover, ::-webkit-scrollbar:active {
+	width: 10px !important;
+}

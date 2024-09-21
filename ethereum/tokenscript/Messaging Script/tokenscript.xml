@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ts:token xmlns:ts="http://tokenscript.org/2024/01/tokenscript"
+		  xmlns:xml="http://www.w3.org/XML/1998/namespace"
+		  xsi:schemaLocation="http://tokenscript.org/2024/01/tokenscript https://www.tokenscript.org/schemas/2024-01/tokenscript.xsd"
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		  xmlns:ethereum="urn:ethereum:constantinople"
+		  xmlns:xhmtl="http://www.w3.org/1999/xhtml"
+		  name="BaseMessager">
+	<ts:label>
+		<ts:plurals xml:lang="en">
+			<ts:string quantity="one">Message Token</ts:string>
+			<ts:string quantity="other">Message Tokens</ts:string>
+		</ts:plurals>
+	</ts:label>
+	<ts:meta>
+        <ts:description xml:lang="en">
+            ENS Messaging Token
+        </ts:description>
+		<ts:iconUrl xml:lang="en">https://olive-managerial-lungfish-930.mypinata.cloud/ipfs/QmYANQDXKoooe6ok2e4ouWGy7oHdnL4ueJXDnQZAwYqUTQ?pinataGatewayToken=o2UKLRik4h3GXMfyFAjhOJ1TWRJK4F1aiQ2Oif_70syeO4lotZxj4HBudCW9a7TV</ts:iconUrl>
+    </ts:meta>
+
+	<ts:contract interface="erc721" name="messagetoken">
+		<ts:address network="8453">0x03c4738ee98ae44591e1a4a4f3cab6641d95dd9a</ts:address>
+	</ts:contract>
+	
+	<ts:origins>
+		<!-- Define the contract which holds the token that the user will use -->
+		<ts:ethereum contract="messagetoken"/>
+	</ts:origins>
+
+	<ts:cards>
+		<ts:viewContent name="common" xmlns="http://www.w3.org/1999/xhtml">
+			<ts:include type="html" src="./dist/index.html"/>
+			<ts:include type="css" src="./src/styles.css"/>
+		</ts:viewContent>
+
+		<ts:card type="token" name="friendship" origins="messagetoken">
+			<ts:label>
+				<ts:string xml:lang="en">Message other tokens</ts:string>
+			</ts:label>
+			<ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" urlFragment="friendship">
+				<ts:viewContent name="common"/>
+			</ts:view>
+		</ts:card>
+
+		<ts:card type="token" name="messages" origins="messagetoken">
+			<ts:label>
+				<ts:string xml:lang="en">Messages</ts:string>
+			</ts:label>
+			<ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" urlFragment="messages">
+				<ts:viewContent name="common"/>
+			</ts:view>
+		</ts:card>
+
+		<ts:card type="token" name="Info" origins="messagetoken">
+			<ts:label>
+				<ts:string xml:lang="en">Info</ts:string>
+			</ts:label>
+			<ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" urlFragment="info">
+				<ts:viewContent name="common"/>
+			</ts:view>
+		</ts:card>
+	</ts:cards>
+</ts:token>
