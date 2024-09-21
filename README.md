@@ -31,7 +31,7 @@ Tapp stands for "Tokens as Applications". It's a cross-platform mini-app that go
 - **Seamless Integration**: Allows for seamless integration of Super Loud across various platforms, enhancing user experience and developer productivity.
 
 ## Features of Super Loud
-- **ENS Integration**: Use your ENS name as your identity within the app.
+- **An ENS Tapp**: The mini app is linked with ENS NFTs via ERC-7738, users can easily find the mini app from 7738 script regestion contracts.
 - **Friend Requests**: Send and receive friend requests to other ENS users, with optional ETH attachments.
 - **E2E Encrypted Messaging**: Securely chat with accepted friends.
 - **Token Rewards**: Earn Super Loud Tokens (SLT) for successful connections and transactions.
