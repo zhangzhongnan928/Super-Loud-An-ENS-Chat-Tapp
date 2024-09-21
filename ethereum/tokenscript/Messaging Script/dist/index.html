@@ -123,6 +123,9 @@ function subscribe(store, ...callbacks) {
 function component_subscribe(component, store, callback) {
   component.$$.on_destroy.push(subscribe(store, callback));
 }
+function null_to_empty(value) {
+  return value == null ? "" : value;
+}
 function set_store_value(store, ret, value) {
   store.set(value);
   return ret;
@@ -168,6 +171,9 @@ function attr(node, attribute, value) {
     node.removeAttribute(attribute);
   else if (node.getAttribute(attribute) !== value)
     node.setAttribute(attribute, value);
+}
+function to_number(value) {
+  return value === "" ? null : +value;
 }
 function children(element2) {
   return Array.from(element2.childNodes);
@@ -17039,7 +17045,7 @@ function spelunkMessage(value) {
   return result;
 }
 const ensLookupCache = {};
-const ensAddress = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
+const ensAddress$1 = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
 async function lookupEnsName(address) {
   if (ensLookupCache[address])
     return ensLookupCache[address];
@@ -17047,7 +17053,7 @@ async function lookupEnsName(address) {
   const provider = new JsonRpcProvider(ethRPC, {
     chainId: 1,
     name: "mainnet",
-    ensAddress
+    ensAddress: ensAddress$1
   });
   return await provider.lookupAddress(address) || "";
 }
@@ -17296,6 +17302,10 @@ const context = {
   derivedPrivateKey
 };
 const showLoader = writable(false);
+const notify = writable({
+  message: "",
+  status: true
+});
 const metadataCache = writable({});
 const NftCardTypes = {
   Messages: 0,
@@ -17315,7 +17325,7 @@ const allowedChainsDiscovery = {
   "8453": "base"
 };
 const NftIcon_svelte_svelte_type_style_lang = "";
-function create_fragment$a(ctx) {
+function create_fragment$b(ctx) {
   let div;
   let img;
   let img_src_value;
@@ -17350,7 +17360,7 @@ function create_fragment$a(ctx) {
     }
   };
 }
-function instance$9($$self, $$props, $$invalidate) {
+function instance$a($$self, $$props, $$invalidate) {
   let $metadataCache;
   component_subscribe($$self, metadataCache, ($$value) => $$invalidate(4, $metadataCache = $$value));
   let { tokenId } = $$props;
@@ -17413,11 +17423,11 @@ function instance$9($$self, $$props, $$invalidate) {
 class NftIcon extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, instance$9, create_fragment$a, safe_not_equal, { tokenId: 1 });
+    init$2(this, options, instance$a, create_fragment$b, safe_not_equal, { tokenId: 1 });
   }
 }
 const OwnerAddress_svelte_svelte_type_style_lang = "";
-function create_if_block$5(ctx) {
+function create_if_block$6(ctx) {
   let span;
   return {
     c() {
@@ -17435,7 +17445,7 @@ function create_if_block$5(ctx) {
     }
   };
 }
-function create_fragment$9(ctx) {
+function create_fragment$a(ctx) {
   let small;
   let t0;
   let span;
@@ -17451,7 +17461,7 @@ function create_fragment$9(ctx) {
   let t1;
   let if_block = (
     /*accountType*/
-    ctx[1] != NftCardTypes.Admin && create_if_block$5()
+    ctx[1] != NftCardTypes.Admin && create_if_block$6()
   );
   return {
     c() {
@@ -17485,7 +17495,7 @@ function create_fragment$9(ctx) {
         if (if_block)
           ;
         else {
-          if_block = create_if_block$5();
+          if_block = create_if_block$6();
           if_block.c();
           if_block.m(small, t0);
         }
@@ -17523,7 +17533,7 @@ function create_fragment$9(ctx) {
     }
   };
 }
-function instance$8($$self, $$props, $$invalidate) {
+function instance$9($$self, $$props, $$invalidate) {
   let { address } = $$props;
   let { accountType = NftCardTypes.Friends } = $$props;
   let ensName;
@@ -17544,11 +17554,11 @@ function instance$8($$self, $$props, $$invalidate) {
 class OwnerAddress extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, instance$8, create_fragment$9, safe_not_equal, { address: 0, accountType: 1 });
+    init$2(this, options, instance$9, create_fragment$a, safe_not_equal, { address: 0, accountType: 1 });
   }
 }
 const NftCard_svelte_svelte_type_style_lang = "";
-function create_if_block$4(ctx) {
+function create_if_block$5(ctx) {
   let div1;
   let nfticon;
   let t0;
@@ -17572,14 +17582,14 @@ function create_if_block$4(ctx) {
       /*accountType*/
       ctx2[2] == NftCardTypes.Admin
     )
-      return create_if_block_2$2;
-    return create_else_block$2;
+      return create_if_block_2$3;
+    return create_else_block$3;
   }
   let current_block_type = select_block_type(ctx);
   let if_block0 = current_block_type(ctx);
   let if_block1 = (
     /*accountType*/
-    ctx[2] != NftCardTypes.Friends && create_if_block_1$2(ctx)
+    ctx[2] != NftCardTypes.Friends && create_if_block_1$3(ctx)
   );
   owneraddress = new OwnerAddress({
     props: {
@@ -17660,7 +17670,7 @@ function create_if_block$4(ctx) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
         } else {
-          if_block1 = create_if_block_1$2(ctx2);
+          if_block1 = create_if_block_1$3(ctx2);
           if_block1.c();
           if_block1.m(div0, t2);
         }
@@ -17718,7 +17728,7 @@ function create_if_block$4(ctx) {
     }
   };
 }
-function create_else_block$2(ctx) {
+function create_else_block$3(ctx) {
   let h4;
   let t0_value = (
     /*nft*/
@@ -17780,7 +17790,7 @@ function create_else_block$2(ctx) {
     }
   };
 }
-function create_if_block_2$2(ctx) {
+function create_if_block_2$3(ctx) {
   let h4;
   let t0_value = (
     /*nft*/
@@ -17829,7 +17839,7 @@ function create_if_block_2$2(ctx) {
     }
   };
 }
-function create_if_block_1$2(ctx) {
+function create_if_block_1$3(ctx) {
   let span;
   let t0_value = (
     /*nft*/
@@ -17869,11 +17879,11 @@ function create_if_block_1$2(ctx) {
     }
   };
 }
-function create_fragment$8(ctx) {
+function create_fragment$9(ctx) {
   let if_block_anchor;
   let current;
   let if_block = !/*nft*/
-  ctx[0].wrongOwner && create_if_block$4(ctx);
+  ctx[0].wrongOwner && create_if_block$5(ctx);
   return {
     c() {
       if (if_block)
@@ -17896,7 +17906,7 @@ function create_fragment$8(ctx) {
             transition_in(if_block, 1);
           }
         } else {
-          if_block = create_if_block$4(ctx2);
+          if_block = create_if_block$5(ctx2);
           if_block.c();
           transition_in(if_block, 1);
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -17928,7 +17938,7 @@ function create_fragment$8(ctx) {
     }
   };
 }
-function instance$7($$self, $$props, $$invalidate) {
+function instance$8($$self, $$props, $$invalidate) {
   let { nft } = $$props;
   let { clickable = false } = $$props;
   let { accountType = NftCardTypes.Friends } = $$props;
@@ -17951,7 +17961,7 @@ function instance$7($$self, $$props, $$invalidate) {
 class NftCard extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, instance$7, create_fragment$8, safe_not_equal, {
+    init$2(this, options, instance$8, create_fragment$9, safe_not_equal, {
       nft: 0,
       clickable: 1,
       accountType: 2,
@@ -17960,7 +17970,7 @@ class NftCard extends SvelteComponent {
   }
 }
 const MessageBubble_svelte_svelte_type_style_lang = "";
-function create_fragment$7(ctx) {
+function create_fragment$8(ctx) {
   let div1;
   let div0;
   let t0_value = (
@@ -18057,7 +18067,7 @@ function create_fragment$7(ctx) {
     }
   };
 }
-function instance$6($$self, $$props, $$invalidate) {
+function instance$7($$self, $$props, $$invalidate) {
   let { message } = $$props;
   let { senderTokenId } = $$props;
   let dateString;
@@ -18087,11 +18097,11 @@ function instance$6($$self, $$props, $$invalidate) {
 class MessageBubble extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, instance$6, create_fragment$7, safe_not_equal, { message: 0, senderTokenId: 1 });
+    init$2(this, options, instance$7, create_fragment$8, safe_not_equal, { message: 0, senderTokenId: 1 });
   }
 }
 const Loader_svelte_svelte_type_style_lang = "";
-function create_if_block$3(ctx) {
+function create_if_block$4(ctx) {
   let div5;
   return {
     c() {
@@ -18109,11 +18119,11 @@ function create_if_block$3(ctx) {
     }
   };
 }
-function create_fragment$6(ctx) {
+function create_fragment$7(ctx) {
   let if_block_anchor;
   let if_block = (
     /*show*/
-    ctx[0] && create_if_block$3()
+    ctx[0] && create_if_block$4()
   );
   return {
     c() {
@@ -18134,7 +18144,7 @@ function create_fragment$6(ctx) {
         if (if_block)
           ;
         else {
-          if_block = create_if_block$3();
+          if_block = create_if_block$4();
           if_block.c();
           if_block.m(if_block_anchor.parentNode, if_block_anchor);
         }
@@ -18154,7 +18164,7 @@ function create_fragment$6(ctx) {
     }
   };
 }
-function instance$5($$self, $$props, $$invalidate) {
+function instance$6($$self, $$props, $$invalidate) {
   let { show } = $$props;
   $$self.$$set = ($$props2) => {
     if ("show" in $$props2)
@@ -18165,7 +18175,7 @@ function instance$5($$self, $$props, $$invalidate) {
 class Loader extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, instance$5, create_fragment$6, safe_not_equal, { show: 0 });
+    init$2(this, options, instance$6, create_fragment$7, safe_not_equal, { show: 0 });
   }
 }
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
@@ -24807,12 +24817,12 @@ function hexToAscii(hexString) {
   return asciiString;
 }
 const MessagePopup_svelte_svelte_type_style_lang = "";
-function get_each_context$2(ctx, list, i) {
+function get_each_context$3(ctx, list, i) {
   const child_ctx = ctx.slice();
   child_ctx[18] = list[i];
   return child_ctx;
 }
-function create_else_block$1(ctx) {
+function create_else_block$2(ctx) {
   let t0;
   let t1;
   return {
@@ -24844,7 +24854,7 @@ function create_else_block$1(ctx) {
     }
   };
 }
-function create_if_block_4$1(ctx) {
+function create_if_block_4$2(ctx) {
   let t_value = (
     /*thread*/
     ctx[1].tokenIdName + ""
@@ -24870,7 +24880,7 @@ function create_if_block_4$1(ctx) {
     }
   };
 }
-function create_if_block_3$1(ctx) {
+function create_if_block_3$2(ctx) {
   var _a2;
   let t0_value = (
     /*thread*/
@@ -24919,7 +24929,7 @@ function create_if_block_3$1(ctx) {
     }
   };
 }
-function create_if_block_2$1(ctx) {
+function create_if_block_2$2(ctx) {
   let each_1_anchor;
   let current;
   let each_value = ensure_array_like(
@@ -24928,7 +24938,7 @@ function create_if_block_2$1(ctx) {
   );
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
-    each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
+    each_blocks[i] = create_each_block$3(get_each_context$3(ctx, each_value, i));
   }
   const out = (i) => transition_out(each_blocks[i], 1, 1, () => {
     each_blocks[i] = null;
@@ -24958,12 +24968,12 @@ function create_if_block_2$1(ctx) {
         );
         let i;
         for (i = 0; i < each_value.length; i += 1) {
-          const child_ctx = get_each_context$2(ctx2, each_value, i);
+          const child_ctx = get_each_context$3(ctx2, each_value, i);
           if (each_blocks[i]) {
             each_blocks[i].p(child_ctx, dirty);
             transition_in(each_blocks[i], 1);
           } else {
-            each_blocks[i] = create_each_block$2(child_ctx);
+            each_blocks[i] = create_each_block$3(child_ctx);
             each_blocks[i].c();
             transition_in(each_blocks[i], 1);
             each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
@@ -24999,7 +25009,7 @@ function create_if_block_2$1(ctx) {
     }
   };
 }
-function create_if_block_1$1(ctx) {
+function create_if_block_1$2(ctx) {
   let h3;
   let t;
   return {
@@ -25032,7 +25042,7 @@ function create_if_block_1$1(ctx) {
     }
   };
 }
-function create_each_block$2(ctx) {
+function create_each_block$3(ctx) {
   let messagebubble;
   let current;
   messagebubble = new MessageBubble({
@@ -25082,7 +25092,7 @@ function create_each_block$2(ctx) {
     }
   };
 }
-function create_if_block$2(ctx) {
+function create_if_block$3(ctx) {
   let div2;
   let div0;
   let textarea;
@@ -25178,7 +25188,7 @@ function create_if_block$2(ctx) {
     }
   };
 }
-function create_fragment$5(ctx) {
+function create_fragment$6(ctx) {
   var _a2;
   let div5;
   let div2;
@@ -25208,18 +25218,18 @@ function create_fragment$5(ctx) {
       /*friendId*/
       ctx2[0] == "admin"
     )
-      return create_if_block_3$1;
+      return create_if_block_3$2;
     if (
       /*thread*/
       ((_a3 = ctx2[1]) == null ? void 0 : _a3.tokenIdName) != void 0 && /*thread*/
       ((_b = ctx2[1]) == null ? void 0 : _b.tokenIdName.length) > 0
     )
-      return create_if_block_4$1;
-    return create_else_block$1;
+      return create_if_block_4$2;
+    return create_else_block$2;
   }
   let current_block_type = select_block_type(ctx);
   let if_block0 = current_block_type(ctx);
-  const if_block_creators = [create_if_block_1$1, create_if_block_2$1];
+  const if_block_creators = [create_if_block_1$2, create_if_block_2$2];
   const if_blocks = [];
   function select_block_type_1(ctx2, dirty) {
     if (
@@ -25241,7 +25251,7 @@ function create_fragment$5(ctx) {
     /*loading*/
     ctx[5]
   ) } });
-  let if_block2 = show_if && create_if_block$2(ctx);
+  let if_block2 = show_if && create_if_block$3(ctx);
   return {
     c() {
       var _a3, _b;
@@ -25384,7 +25394,7 @@ function create_fragment$5(ctx) {
         if (if_block2) {
           if_block2.p(ctx2, dirty);
         } else {
-          if_block2 = create_if_block$2(ctx2);
+          if_block2 = create_if_block$3(ctx2);
           if_block2.c();
           if_block2.m(div5, null);
         }
@@ -25433,7 +25443,7 @@ function scrollToBottom(smooth = false) {
     200
   );
 }
-function instance$4($$self, $$props, $$invalidate) {
+function instance$5($$self, $$props, $$invalidate) {
   let { closed } = $$props;
   let { friendId } = $$props;
   let { secret } = $$props;
@@ -25447,7 +25457,7 @@ function instance$4($$self, $$props, $$invalidate) {
   let messages = null;
   let newMessageText = "";
   let reloadTimer;
-  let loading = true;
+  let loading2 = true;
   let error = "";
   function tryToDecryptMessage(msg) {
     if (!msg.encrypted)
@@ -25476,7 +25486,7 @@ function instance$4($$self, $$props, $$invalidate) {
       } else {
         if (!thread)
           return;
-        $$invalidate(5, loading = true);
+        $$invalidate(5, loading2 = true);
         const result = await client.sendMessage(
           secret ? CryptoJS.AES.encrypt(newMessageText, hexToAscii(secret)).toString() : newMessageText,
           friendId,
@@ -25495,7 +25505,7 @@ function instance$4($$self, $$props, $$invalidate) {
       console.error(e);
       alert("Message send failed: " + e.message);
     }
-    $$invalidate(5, loading = false);
+    $$invalidate(5, loading2 = false);
   }
   async function loadMessages(reload = false) {
     if (friendId == "admin") {
@@ -25523,16 +25533,16 @@ function instance$4($$self, $$props, $$invalidate) {
     $$invalidate(2, token = value.token);
     client = await context.getMessageClient();
     $$invalidate(6, error = "");
-    $$invalidate(5, loading = true);
+    $$invalidate(5, loading2 = true);
     try {
       await loadMessages();
     } catch (e) {
       console.error(e);
       $$invalidate(6, error = e.message);
-      $$invalidate(5, loading = false);
+      $$invalidate(5, loading2 = false);
       return;
     }
-    $$invalidate(5, loading = false);
+    $$invalidate(5, loading2 = false);
     reloadTimer = setInterval(() => loadMessages(true), 3e4);
   });
   function cleanupAndClose() {
@@ -25561,7 +25571,7 @@ function instance$4($$self, $$props, $$invalidate) {
     token,
     messages,
     newMessageText,
-    loading,
+    loading2,
     error,
     sendMessage,
     cleanupAndClose,
@@ -25575,7 +25585,7 @@ function instance$4($$self, $$props, $$invalidate) {
 class MessagePopup extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, instance$4, create_fragment$5, safe_not_equal, {
+    init$2(this, options, instance$5, create_fragment$6, safe_not_equal, {
       closed: 9,
       friendId: 0,
       secret: 10,
@@ -28433,7 +28443,25 @@ DH.prototype.setGenerator = function(gen2) {
 function formatReturnValue(bn2) {
   return uint8tohex(new Uint8Array(bn2.toArray()));
 }
+const ensAddress = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
 const tokenDiscoveryAPI = "https://api.token-discovery.tokenscript.org/";
+async function getCommitmentData(coordinatorContractAddr, chainId, thisContractAddr, originId, targetId) {
+  let baseRPC = "https://base-rpc.publicnode.com";
+  const provider = new JsonRpcProvider(baseRPC, {
+    chainId,
+    name: "base"
+  });
+  const commitController = new Contract(coordinatorContractAddr, [
+    "function commitValue(address messagingContract, uint256 originId, uint256 targetId) view returns (uint256 value, bool complete)"
+  ], provider);
+  let result = null;
+  try {
+    result = await commitController.commitValue(thisContractAddr, originId, targetId);
+  } catch (error) {
+    console.log(`ERR: ${error}`);
+  }
+  return result;
+}
 async function resolveNameFromTokenId(tokenId, contractAddress) {
   if (tokenId == null || tokenId.length == 0) {
     return "";
@@ -28463,13 +28491,89 @@ async function resolveNameFromTokenId(tokenId, contractAddress) {
   }
   return "";
 }
+async function resolveTokenId(name = "", contract, owner) {
+  const suffix = ".base.eth";
+  let formName = name;
+  if (!name.endsWith(suffix)) {
+    formName = `${name}${suffix}`;
+  }
+  let cachedId = cachedIds.get(formName);
+  if (cachedId != null && cachedId.length > 0) {
+    return cachedId;
+  }
+  try {
+    let urlString = `${tokenDiscoveryAPI}get-owner-tokens?smartContract=${contract}&chain=base&owner=${owner}&blockchain=evm`;
+    const response = await fetch(
+      urlString,
+      {
+        method: "GET"
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const responseData = await response.json();
+    for (let i = 0; i < responseData.length; i++) {
+      const thisToken = responseData[i];
+      if (thisToken.title === formName) {
+        cachedIds.set(formName, thisToken.tokenId);
+        cachedNames.set(thisToken.tokenId, formName);
+        return thisToken.tokenId;
+      }
+    }
+  } catch (e) {
+  }
+  return null;
+}
+async function resolveOwnerOfTokenId(tokenId, chainId, contractAddress) {
+  let baseRPC = "https://base-rpc.publicnode.com";
+  const provider = new JsonRpcProvider(baseRPC, {
+    chainId,
+    name: "base"
+  });
+  const nameResolver = new Contract(contractAddress, [
+    "function ownerOf(uint256 tokenId) view returns (address)"
+  ], provider);
+  let ownerAddress = "";
+  try {
+    ownerAddress = await nameResolver.ownerOf(tokenId);
+  } catch (error) {
+  }
+  return ownerAddress;
+}
+async function resolveOwner(name = "") {
+  const suffix = ".base.eth";
+  if (name.endsWith(suffix)) {
+    name = name.replace(suffix, "");
+  }
+  try {
+    const ethRPC = tokenscript.eth.getRpcUrls(1)[0];
+    const provider = new JsonRpcProvider(ethRPC, {
+      chainId: 1,
+      name: "mainnet",
+      ensAddress
+    });
+    const formName = `${name}.base.eth`;
+    const address = await provider.resolveName(formName);
+    if (address) {
+      console.log(`The address for ${formName} is ${address}`);
+      return address;
+    } else {
+      console.log(`ENS name ${formName} could not be resolved.`);
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Message send failed: " + e.message);
+  }
+  return null;
+}
 const Messages_svelte_svelte_type_style_lang = "";
-function get_each_context$1(ctx, list, i) {
+function get_each_context$2(ctx, list, i) {
   const child_ctx = ctx.slice();
   child_ctx[18] = list[i];
   return child_ctx;
 }
-function create_if_block_4(ctx) {
+function create_if_block_4$1(ctx) {
   let nftcard;
   let current;
   nftcard = new NftCard({
@@ -28522,7 +28626,7 @@ function create_if_block_4(ctx) {
     }
   };
 }
-function create_else_block(ctx) {
+function create_else_block$1(ctx) {
   let div;
   return {
     c() {
@@ -28542,12 +28646,12 @@ function create_else_block(ctx) {
     }
   };
 }
-function create_if_block_1(ctx) {
+function create_if_block_1$1(ctx) {
   let current_block_type_index;
   let if_block;
   let if_block_anchor;
   let current;
-  const if_block_creators = [create_if_block_2, create_if_block_3];
+  const if_block_creators = [create_if_block_2$1, create_if_block_3$1];
   const if_blocks = [];
   function select_block_type_1(ctx2, dirty) {
     if (
@@ -28626,7 +28730,7 @@ function create_if_block_1(ctx) {
     }
   };
 }
-function create_if_block_3(ctx) {
+function create_if_block_3$1(ctx) {
   let h5;
   let t1;
   let p;
@@ -28655,7 +28759,7 @@ function create_if_block_3(ctx) {
     }
   };
 }
-function create_if_block_2(ctx) {
+function create_if_block_2$1(ctx) {
   let div;
   let current;
   let each_value = ensure_array_like(
@@ -28664,7 +28768,7 @@ function create_if_block_2(ctx) {
   );
   let each_blocks = [];
   for (let i = 0; i < each_value.length; i += 1) {
-    each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
+    each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
   }
   const out = (i) => transition_out(each_blocks[i], 1, 1, () => {
     each_blocks[i] = null;
@@ -28695,12 +28799,12 @@ function create_if_block_2(ctx) {
         );
         let i;
         for (i = 0; i < each_value.length; i += 1) {
-          const child_ctx = get_each_context$1(ctx2, each_value, i);
+          const child_ctx = get_each_context$2(ctx2, each_value, i);
           if (each_blocks[i]) {
             each_blocks[i].p(child_ctx, dirty);
             transition_in(each_blocks[i], 1);
           } else {
-            each_blocks[i] = create_each_block$1(child_ctx);
+            each_blocks[i] = create_each_block$2(child_ctx);
             each_blocks[i].c();
             transition_in(each_blocks[i], 1);
             each_blocks[i].m(div, null);
@@ -28736,7 +28840,7 @@ function create_if_block_2(ctx) {
     }
   };
 }
-function create_each_block$1(ctx) {
+function create_each_block$2(ctx) {
   let nftcard;
   let current;
   function click_handler() {
@@ -28800,7 +28904,7 @@ function create_each_block$1(ctx) {
     }
   };
 }
-function create_if_block$1(ctx) {
+function create_if_block$2(ctx) {
   let messagepopup;
   let current;
   messagepopup = new MessagePopup({
@@ -28878,7 +28982,7 @@ function create_if_block$1(ctx) {
     }
   };
 }
-function create_fragment$4(ctx) {
+function create_fragment$5(ctx) {
   let h3;
   let t1;
   let div0;
@@ -28891,9 +28995,9 @@ function create_fragment$4(ctx) {
   let current;
   let if_block0 = (
     /*adminChatNft*/
-    ctx[3] && create_if_block_4(ctx)
+    ctx[3] && create_if_block_4$1(ctx)
   );
-  const if_block_creators = [create_if_block_1, create_else_block];
+  const if_block_creators = [create_if_block_1$1, create_else_block$1];
   const if_blocks = [];
   function select_block_type(ctx2, dirty) {
     if (
@@ -28907,7 +29011,7 @@ function create_fragment$4(ctx) {
   if_block1 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
   let if_block2 = (
     /*selectedFriendId*/
-    ctx[1] && create_if_block$1(ctx)
+    ctx[1] && create_if_block$2(ctx)
   );
   return {
     c() {
@@ -28957,7 +29061,7 @@ function create_fragment$4(ctx) {
             transition_in(if_block0, 1);
           }
         } else {
-          if_block0 = create_if_block_4(ctx2);
+          if_block0 = create_if_block_4$1(ctx2);
           if_block0.c();
           transition_in(if_block0, 1);
           if_block0.m(div1, t4);
@@ -29000,7 +29104,7 @@ function create_fragment$4(ctx) {
             transition_in(if_block2, 1);
           }
         } else {
-          if_block2 = create_if_block$1(ctx2);
+          if_block2 = create_if_block$2(ctx2);
           if_block2.c();
           transition_in(if_block2, 1);
           if_block2.m(div1, null);
@@ -29043,7 +29147,7 @@ function create_fragment$4(ctx) {
     }
   };
 }
-function instance$3($$self, $$props, $$invalidate) {
+function instance$4($$self, $$props, $$invalidate) {
   let $showLoader;
   component_subscribe($$self, showLoader, ($$value) => $$invalidate(4, $showLoader = $$value));
   let token;
@@ -29211,11 +29315,11 @@ function instance$3($$self, $$props, $$invalidate) {
 class Messages extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, instance$3, create_fragment$4, safe_not_equal, {});
+    init$2(this, options, instance$4, create_fragment$5, safe_not_equal, {});
   }
 }
 const Info_svelte_svelte_type_style_lang = "";
-function create_if_block(ctx) {
+function create_if_block$1(ctx) {
   let div;
   let t3;
   let pre;
@@ -29262,7 +29366,7 @@ function create_if_block(ctx) {
     }
   };
 }
-function create_fragment$3(ctx) {
+function create_fragment$4(ctx) {
   let div;
   let h3;
   let t1;
@@ -29271,7 +29375,7 @@ function create_fragment$3(ctx) {
   let current;
   let if_block = (
     /*token*/
-    ctx[0] && create_if_block(ctx)
+    ctx[0] && create_if_block$1(ctx)
   );
   loader = new Loader({ props: { show: (
     /*loading*/
@@ -29306,7 +29410,7 @@ function create_fragment$3(ctx) {
         if (if_block) {
           if_block.p(ctx2, dirty);
         } else {
-          if_block = create_if_block(ctx2);
+          if_block = create_if_block$1(ctx2);
           if_block.c();
           if_block.m(div, t2);
         }
@@ -29341,24 +29445,24 @@ function create_fragment$3(ctx) {
     }
   };
 }
-function instance$2($$self, $$props, $$invalidate) {
+function instance$3($$self, $$props, $$invalidate) {
   let token;
-  let loading = true;
+  let loading2 = true;
   context.data.subscribe(async (value) => {
     if (!value.token)
       return;
     $$invalidate(0, token = value.token);
-    $$invalidate(1, loading = false);
+    $$invalidate(1, loading2 = false);
   });
-  return [token, loading];
+  return [token, loading2];
 }
 class Info extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, instance$2, create_fragment$3, safe_not_equal, {});
+    init$2(this, options, instance$3, create_fragment$4, safe_not_equal, {});
   }
 }
-function create_fragment$2(ctx) {
+function create_fragment$3(ctx) {
   let h1;
   return {
     c() {
@@ -29381,10 +29485,1630 @@ function create_fragment$2(ctx) {
 class NotFound extends SvelteComponent {
   constructor(options) {
     super();
-    init$2(this, options, null, create_fragment$2, safe_not_equal, {});
+    init$2(this, options, null, create_fragment$3, safe_not_equal, {});
   }
 }
 const Friendship_svelte_svelte_type_style_lang = "";
+function get_each_context_2(ctx, list, i) {
+  const child_ctx = ctx.slice();
+  child_ctx[47] = list[i];
+  return child_ctx;
+}
+function get_each_context_1(ctx, list, i) {
+  const child_ctx = ctx.slice();
+  child_ctx[42] = list[i];
+  return child_ctx;
+}
+function get_each_context$1(ctx, list, i) {
+  const child_ctx = ctx.slice();
+  child_ctx[42] = list[i];
+  return child_ctx;
+}
+function create_else_block_2(ctx) {
+  let div1;
+  let current_block_type_index;
+  let if_block;
+  let t0;
+  let div0;
+  let t1;
+  let div0_class_value;
+  let current;
+  let mounted;
+  let dispose;
+  const if_block_creators = [create_if_block_6, create_else_block_3];
+  const if_blocks = [];
+  function select_block_type_3(ctx2, dirty) {
+    if (
+      /*invites*/
+      ctx2[3] && /*invites*/
+      ctx2[3].length
+    )
+      return 0;
+    return 1;
+  }
+  current_block_type_index = select_block_type_3(ctx);
+  if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  return {
+    c() {
+      div1 = element("div");
+      if_block.c();
+      t0 = space();
+      div0 = element("div");
+      t1 = text("Accept Request");
+      attr(div0, "class", div0_class_value = "accept btn-gradient " + /*selectedInvite*/
+      (ctx[2] == "-1" ? "disabled" : "") + " svelte-1cmdhau");
+      attr(div1, "class", "tab-content-wrap svelte-1cmdhau");
+    },
+    m(target, anchor) {
+      insert(target, div1, anchor);
+      if_blocks[current_block_type_index].m(div1, null);
+      append(div1, t0);
+      append(div1, div0);
+      append(div0, t1);
+      current = true;
+      if (!mounted) {
+        dispose = listen(
+          div0,
+          "click",
+          /*click_handler_4*/
+          ctx[25]
+        );
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      let previous_block_index = current_block_type_index;
+      current_block_type_index = select_block_type_3(ctx2);
+      if (current_block_type_index === previous_block_index) {
+        if_blocks[current_block_type_index].p(ctx2, dirty);
+      } else {
+        group_outros();
+        transition_out(if_blocks[previous_block_index], 1, 1, () => {
+          if_blocks[previous_block_index] = null;
+        });
+        check_outros();
+        if_block = if_blocks[current_block_type_index];
+        if (!if_block) {
+          if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
+          if_block.c();
+        } else {
+          if_block.p(ctx2, dirty);
+        }
+        transition_in(if_block, 1);
+        if_block.m(div1, t0);
+      }
+      if (!current || dirty[0] & /*selectedInvite*/
+      4 && div0_class_value !== (div0_class_value = "accept btn-gradient " + /*selectedInvite*/
+      (ctx2[2] == "-1" ? "disabled" : "") + " svelte-1cmdhau")) {
+        attr(div0, "class", div0_class_value);
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(div1);
+      }
+      if_blocks[current_block_type_index].d();
+      mounted = false;
+      dispose();
+    }
+  };
+}
+function create_if_block(ctx) {
+  let div6;
+  let div0;
+  let t1;
+  let div2;
+  let input;
+  let t2;
+  let t3;
+  let t4;
+  let div1;
+  let t5;
+  let div1_class_value;
+  let div1_disabled_value;
+  let t6;
+  let div5;
+  let div3;
+  let t7;
+  let t8_value = (
+    /*friends*/
+    ctx[5].length ? "(" + /*friends*/
+    ctx[5].length + ")" : ""
+  );
+  let t8;
+  let div3_class_value;
+  let t9;
+  let div4;
+  let t10;
+  let t11_value = (
+    /*ownInvites*/
+    ctx[4].length ? "(" + /*ownInvites*/
+    ctx[4].length + ")" : ""
+  );
+  let t11;
+  let div4_class_value;
+  let t12;
+  let current_block_type_index;
+  let if_block2;
+  let current;
+  let mounted;
+  let dispose;
+  let if_block0 = (
+    /*isBaseNameExistPending*/
+    ctx[8] === true && create_if_block_5()
+  );
+  let if_block1 = (
+    /*isBaseNameExist*/
+    ctx[7] === true && !/*isBaseNameExistPending*/
+    ctx[8] && create_if_block_4(ctx)
+  );
+  const if_block_creators = [create_if_block_1, create_if_block_3, create_else_block_1];
+  const if_blocks = [];
+  function select_block_type_1(ctx2, dirty) {
+    if (
+      /*friendsTabActive*/
+      ctx2[1]
+    )
+      return 0;
+    if (
+      /*ownInvites*/
+      ctx2[4].length
+    )
+      return 1;
+    return 2;
+  }
+  current_block_type_index = select_block_type_1(ctx);
+  if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  return {
+    c() {
+      div6 = element("div");
+      div0 = element("div");
+      div0.textContent = "Enter Base ENS name to open a secure message channel. Target name permission required for\r\n					chatting.";
+      t1 = space();
+      div2 = element("div");
+      input = element("input");
+      t2 = space();
+      if (if_block0)
+        if_block0.c();
+      t3 = space();
+      if (if_block1)
+        if_block1.c();
+      t4 = space();
+      div1 = element("div");
+      t5 = text("Send Request");
+      t6 = space();
+      div5 = element("div");
+      div3 = element("div");
+      t7 = text("Friends ");
+      t8 = text(t8_value);
+      t9 = space();
+      div4 = element("div");
+      t10 = text("Pending ");
+      t11 = text(t11_value);
+      t12 = space();
+      if_block2.c();
+      attr(div0, "class", "description svelte-1cmdhau");
+      attr(input, "type", "text");
+      attr(input, "id", "message-input");
+      input.required = true;
+      input.disabled = loading;
+      attr(input, "placeholder", "ENS name");
+      attr(input, "class", "svelte-1cmdhau");
+      attr(div1, "class", div1_class_value = "btn-gradient " + /*isBaseNameExist*/
+      (ctx[7] === true && !/*isBaseNameExistPending*/
+      ctx[8] ? "active" : "") + " svelte-1cmdhau");
+      attr(div1, "disabled", div1_disabled_value = /*isBaseNameExist*/
+      ctx[7] !== true);
+      attr(div2, "id", "invite-friend");
+      attr(div2, "class", "svelte-1cmdhau");
+      attr(div3, "class", div3_class_value = null_to_empty(
+        /*friendsTabActive*/
+        ctx[1] ? "active" : ""
+      ) + " svelte-1cmdhau");
+      attr(div4, "class", div4_class_value = null_to_empty(
+        /*friendsTabActive*/
+        ctx[1] ? "" : "active"
+      ) + " svelte-1cmdhau");
+      attr(div5, "class", "friends-tabs svelte-1cmdhau");
+      attr(div6, "class", "tab-content-wrap svelte-1cmdhau");
+    },
+    m(target, anchor) {
+      insert(target, div6, anchor);
+      append(div6, div0);
+      append(div6, t1);
+      append(div6, div2);
+      append(div2, input);
+      append(div2, t2);
+      if (if_block0)
+        if_block0.m(div2, null);
+      append(div2, t3);
+      if (if_block1)
+        if_block1.m(div2, null);
+      append(div2, t4);
+      append(div2, div1);
+      append(div1, t5);
+      append(div6, t6);
+      append(div6, div5);
+      append(div5, div3);
+      append(div3, t7);
+      append(div3, t8);
+      append(div5, t9);
+      append(div5, div4);
+      append(div4, t10);
+      append(div4, t11);
+      append(div6, t12);
+      if_blocks[current_block_type_index].m(div6, null);
+      current = true;
+      if (!mounted) {
+        dispose = [
+          listen(
+            input,
+            "input",
+            /*input_handler*/
+            ctx[17]
+          ),
+          listen(
+            div1,
+            "click",
+            /*click_handler*/
+            ctx[19]
+          ),
+          listen(
+            div3,
+            "click",
+            /*click_handler_1*/
+            ctx[20]
+          ),
+          listen(
+            div3,
+            "keypress",
+            /*keypress_handler*/
+            ctx[21]
+          ),
+          listen(
+            div4,
+            "click",
+            /*click_handler_2*/
+            ctx[22]
+          ),
+          listen(
+            div4,
+            "keypress",
+            /*keypress_handler_1*/
+            ctx[23]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (
+        /*isBaseNameExistPending*/
+        ctx2[8] === true
+      ) {
+        if (if_block0)
+          ;
+        else {
+          if_block0 = create_if_block_5();
+          if_block0.c();
+          if_block0.m(div2, t3);
+        }
+      } else if (if_block0) {
+        if_block0.d(1);
+        if_block0 = null;
+      }
+      if (
+        /*isBaseNameExist*/
+        ctx2[7] === true && !/*isBaseNameExistPending*/
+        ctx2[8]
+      ) {
+        if (if_block1) {
+          if_block1.p(ctx2, dirty);
+        } else {
+          if_block1 = create_if_block_4(ctx2);
+          if_block1.c();
+          if_block1.m(div2, t4);
+        }
+      } else if (if_block1) {
+        if_block1.d(1);
+        if_block1 = null;
+      }
+      if (!current || dirty[0] & /*isBaseNameExist, isBaseNameExistPending*/
+      384 && div1_class_value !== (div1_class_value = "btn-gradient " + /*isBaseNameExist*/
+      (ctx2[7] === true && !/*isBaseNameExistPending*/
+      ctx2[8] ? "active" : "") + " svelte-1cmdhau")) {
+        attr(div1, "class", div1_class_value);
+      }
+      if (!current || dirty[0] & /*isBaseNameExist*/
+      128 && div1_disabled_value !== (div1_disabled_value = /*isBaseNameExist*/
+      ctx2[7] !== true)) {
+        attr(div1, "disabled", div1_disabled_value);
+      }
+      if ((!current || dirty[0] & /*friends*/
+      32) && t8_value !== (t8_value = /*friends*/
+      ctx2[5].length ? "(" + /*friends*/
+      ctx2[5].length + ")" : ""))
+        set_data(t8, t8_value);
+      if (!current || dirty[0] & /*friendsTabActive*/
+      2 && div3_class_value !== (div3_class_value = null_to_empty(
+        /*friendsTabActive*/
+        ctx2[1] ? "active" : ""
+      ) + " svelte-1cmdhau")) {
+        attr(div3, "class", div3_class_value);
+      }
+      if ((!current || dirty[0] & /*ownInvites*/
+      16) && t11_value !== (t11_value = /*ownInvites*/
+      ctx2[4].length ? "(" + /*ownInvites*/
+      ctx2[4].length + ")" : ""))
+        set_data(t11, t11_value);
+      if (!current || dirty[0] & /*friendsTabActive*/
+      2 && div4_class_value !== (div4_class_value = null_to_empty(
+        /*friendsTabActive*/
+        ctx2[1] ? "" : "active"
+      ) + " svelte-1cmdhau")) {
+        attr(div4, "class", div4_class_value);
+      }
+      let previous_block_index = current_block_type_index;
+      current_block_type_index = select_block_type_1(ctx2);
+      if (current_block_type_index === previous_block_index) {
+        if_blocks[current_block_type_index].p(ctx2, dirty);
+      } else {
+        group_outros();
+        transition_out(if_blocks[previous_block_index], 1, 1, () => {
+          if_blocks[previous_block_index] = null;
+        });
+        check_outros();
+        if_block2 = if_blocks[current_block_type_index];
+        if (!if_block2) {
+          if_block2 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
+          if_block2.c();
+        } else {
+          if_block2.p(ctx2, dirty);
+        }
+        transition_in(if_block2, 1);
+        if_block2.m(div6, null);
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block2);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block2);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(div6);
+      }
+      if (if_block0)
+        if_block0.d();
+      if (if_block1)
+        if_block1.d();
+      if_blocks[current_block_type_index].d();
+      mounted = false;
+      run_all(dispose);
+    }
+  };
+}
+function create_else_block_3(ctx) {
+  let div;
+  return {
+    c() {
+      div = element("div");
+      div.textContent = "You don't have pending incoming Friends Requests";
+      attr(div, "class", "svelte-1cmdhau");
+    },
+    m(target, anchor) {
+      insert(target, div, anchor);
+    },
+    p: noop,
+    i: noop,
+    o: noop,
+    d(detaching) {
+      if (detaching) {
+        detach(div);
+      }
+    }
+  };
+}
+function create_if_block_6(ctx) {
+  let h2;
+  let t1;
+  let h4;
+  let t3;
+  let each_1_anchor;
+  let current;
+  let each_value_2 = ensure_array_like(
+    /*invites*/
+    ctx[3].map(
+      /*inviteToNft*/
+      ctx[12]
+    )
+  );
+  let each_blocks = [];
+  for (let i = 0; i < each_value_2.length; i += 1) {
+    each_blocks[i] = create_each_block_2(get_each_context_2(ctx, each_value_2, i));
+  }
+  const out = (i) => transition_out(each_blocks[i], 1, 1, () => {
+    each_blocks[i] = null;
+  });
+  return {
+    c() {
+      h2 = element("h2");
+      h2.textContent = "Confirm Friends Requests:";
+      t1 = space();
+      h4 = element("h4");
+      h4.textContent = "Please click friends requests to confirm friendship if you want to chat with those NFT\r\n						owners.";
+      t3 = space();
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        each_blocks[i].c();
+      }
+      each_1_anchor = empty$1();
+      attr(h2, "class", "svelte-1cmdhau");
+    },
+    m(target, anchor) {
+      insert(target, h2, anchor);
+      insert(target, t1, anchor);
+      insert(target, h4, anchor);
+      insert(target, t3, anchor);
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        if (each_blocks[i]) {
+          each_blocks[i].m(target, anchor);
+        }
+      }
+      insert(target, each_1_anchor, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*invites, inviteToNft, selectedInvite*/
+      4108) {
+        each_value_2 = ensure_array_like(
+          /*invites*/
+          ctx2[3].map(
+            /*inviteToNft*/
+            ctx2[12]
+          )
+        );
+        let i;
+        for (i = 0; i < each_value_2.length; i += 1) {
+          const child_ctx = get_each_context_2(ctx2, each_value_2, i);
+          if (each_blocks[i]) {
+            each_blocks[i].p(child_ctx, dirty);
+            transition_in(each_blocks[i], 1);
+          } else {
+            each_blocks[i] = create_each_block_2(child_ctx);
+            each_blocks[i].c();
+            transition_in(each_blocks[i], 1);
+            each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
+          }
+        }
+        group_outros();
+        for (i = each_value_2.length; i < each_blocks.length; i += 1) {
+          out(i);
+        }
+        check_outros();
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      for (let i = 0; i < each_value_2.length; i += 1) {
+        transition_in(each_blocks[i]);
+      }
+      current = true;
+    },
+    o(local) {
+      each_blocks = each_blocks.filter(Boolean);
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        transition_out(each_blocks[i]);
+      }
+      current = false;
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(h2);
+        detach(t1);
+        detach(h4);
+        detach(t3);
+        detach(each_1_anchor);
+      }
+      destroy_each(each_blocks, detaching);
+    }
+  };
+}
+function create_each_block_2(ctx) {
+  let nftcard;
+  let current;
+  function click_handler_3() {
+    return (
+      /*click_handler_3*/
+      ctx[24](
+        /*invite*/
+        ctx[47]
+      )
+    );
+  }
+  nftcard = new NftCard({
+    props: {
+      nft: (
+        /*invite*/
+        ctx[47]
+      ),
+      accountType: NftCardTypes.Friends,
+      selected: (
+        /*selectedInvite*/
+        ctx[2]
+      )
+    }
+  });
+  nftcard.$on("click", click_handler_3);
+  return {
+    c() {
+      create_component(nftcard.$$.fragment);
+    },
+    m(target, anchor) {
+      mount_component(nftcard, target, anchor);
+      current = true;
+    },
+    p(new_ctx, dirty) {
+      ctx = new_ctx;
+      const nftcard_changes = {};
+      if (dirty[0] & /*invites*/
+      8)
+        nftcard_changes.nft = /*invite*/
+        ctx[47];
+      if (dirty[0] & /*selectedInvite*/
+      4)
+        nftcard_changes.selected = /*selectedInvite*/
+        ctx[2];
+      nftcard.$set(nftcard_changes);
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(nftcard.$$.fragment, local);
+      current = true;
+    },
+    o(local) {
+      transition_out(nftcard.$$.fragment, local);
+      current = false;
+    },
+    d(detaching) {
+      destroy_component(nftcard, detaching);
+    }
+  };
+}
+function create_if_block_5(ctx) {
+  let div;
+  return {
+    c() {
+      div = element("div");
+      div.innerHTML = `<p>Checking if name is valid...</p>`;
+      attr(div, "class", "fade-in-out svelte-1cmdhau");
+      set_style(div, "font-size", "14px");
+      set_style(div, "padding", "12px 4px");
+      set_style(div, "border-radius", "20px");
+    },
+    m(target, anchor) {
+      insert(target, div, anchor);
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(div);
+      }
+    }
+  };
+}
+function create_if_block_4(ctx) {
+  let div0;
+  let p;
+  let t0;
+  let t1;
+  let t2;
+  let t3;
+  let div1;
+  let t5;
+  let input;
+  let mounted;
+  let dispose;
+  return {
+    c() {
+      div0 = element("div");
+      p = element("p");
+      t0 = text("✅ ");
+      t1 = text(
+        /*baseName*/
+        ctx[9]
+      );
+      t2 = text(" is available for messaging");
+      t3 = space();
+      div1 = element("div");
+      div1.textContent = "Offer amount for friend request (can be zero).";
+      t5 = space();
+      input = element("input");
+      set_style(div0, "font-size", "14px");
+      set_style(div0, "padding", "12px 4px");
+      set_style(div0, "border-radius", "20px");
+      attr(div0, "class", "svelte-1cmdhau");
+      attr(div1, "class", "description svelte-1cmdhau");
+      attr(input, "type", "number");
+      attr(input, "id", "offer-input");
+      input.required = true;
+      input.disabled = loading;
+      attr(input, "placeholder", "Offer Fee in $BASE");
+      attr(input, "class", "svelte-1cmdhau");
+    },
+    m(target, anchor) {
+      insert(target, div0, anchor);
+      append(div0, p);
+      append(p, t0);
+      append(p, t1);
+      append(p, t2);
+      insert(target, t3, anchor);
+      insert(target, div1, anchor);
+      insert(target, t5, anchor);
+      insert(target, input, anchor);
+      set_input_value(
+        input,
+        /*offerFee*/
+        ctx[6]
+      );
+      if (!mounted) {
+        dispose = listen(
+          input,
+          "input",
+          /*input_input_handler*/
+          ctx[18]
+        );
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*baseName*/
+      512)
+        set_data(
+          t1,
+          /*baseName*/
+          ctx2[9]
+        );
+      if (dirty[0] & /*offerFee*/
+      64 && to_number(input.value) !== /*offerFee*/
+      ctx2[6]) {
+        set_input_value(
+          input,
+          /*offerFee*/
+          ctx2[6]
+        );
+      }
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(div0);
+        detach(t3);
+        detach(div1);
+        detach(t5);
+        detach(input);
+      }
+      mounted = false;
+      dispose();
+    }
+  };
+}
+function create_else_block_1(ctx) {
+  let div;
+  return {
+    c() {
+      div = element("div");
+      div.textContent = "No unanswered Invites";
+      attr(div, "class", "svelte-1cmdhau");
+    },
+    m(target, anchor) {
+      insert(target, div, anchor);
+    },
+    p: noop,
+    i: noop,
+    o: noop,
+    d(detaching) {
+      if (detaching) {
+        detach(div);
+      }
+    }
+  };
+}
+function create_if_block_3(ctx) {
+  let each_1_anchor;
+  let current;
+  let each_value_1 = ensure_array_like(
+    /*ownInvites*/
+    ctx[4].map(
+      /*inviteToNft*/
+      ctx[12]
+    )
+  );
+  let each_blocks = [];
+  for (let i = 0; i < each_value_1.length; i += 1) {
+    each_blocks[i] = create_each_block_1(get_each_context_1(ctx, each_value_1, i));
+  }
+  const out = (i) => transition_out(each_blocks[i], 1, 1, () => {
+    each_blocks[i] = null;
+  });
+  return {
+    c() {
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        each_blocks[i].c();
+      }
+      each_1_anchor = empty$1();
+    },
+    m(target, anchor) {
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        if (each_blocks[i]) {
+          each_blocks[i].m(target, anchor);
+        }
+      }
+      insert(target, each_1_anchor, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*ownInvites, inviteToNft*/
+      4112) {
+        each_value_1 = ensure_array_like(
+          /*ownInvites*/
+          ctx2[4].map(
+            /*inviteToNft*/
+            ctx2[12]
+          )
+        );
+        let i;
+        for (i = 0; i < each_value_1.length; i += 1) {
+          const child_ctx = get_each_context_1(ctx2, each_value_1, i);
+          if (each_blocks[i]) {
+            each_blocks[i].p(child_ctx, dirty);
+            transition_in(each_blocks[i], 1);
+          } else {
+            each_blocks[i] = create_each_block_1(child_ctx);
+            each_blocks[i].c();
+            transition_in(each_blocks[i], 1);
+            each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
+          }
+        }
+        group_outros();
+        for (i = each_value_1.length; i < each_blocks.length; i += 1) {
+          out(i);
+        }
+        check_outros();
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      for (let i = 0; i < each_value_1.length; i += 1) {
+        transition_in(each_blocks[i]);
+      }
+      current = true;
+    },
+    o(local) {
+      each_blocks = each_blocks.filter(Boolean);
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        transition_out(each_blocks[i]);
+      }
+      current = false;
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(each_1_anchor);
+      }
+      destroy_each(each_blocks, detaching);
+    }
+  };
+}
+function create_if_block_1(ctx) {
+  let current_block_type_index;
+  let if_block;
+  let if_block_anchor;
+  let current;
+  const if_block_creators = [create_if_block_2, create_else_block];
+  const if_blocks = [];
+  function select_block_type_2(ctx2, dirty) {
+    if (
+      /*friends*/
+      ctx2[5].length
+    )
+      return 0;
+    return 1;
+  }
+  current_block_type_index = select_block_type_2(ctx);
+  if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  return {
+    c() {
+      if_block.c();
+      if_block_anchor = empty$1();
+    },
+    m(target, anchor) {
+      if_blocks[current_block_type_index].m(target, anchor);
+      insert(target, if_block_anchor, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      let previous_block_index = current_block_type_index;
+      current_block_type_index = select_block_type_2(ctx2);
+      if (current_block_type_index === previous_block_index) {
+        if_blocks[current_block_type_index].p(ctx2, dirty);
+      } else {
+        group_outros();
+        transition_out(if_blocks[previous_block_index], 1, 1, () => {
+          if_blocks[previous_block_index] = null;
+        });
+        check_outros();
+        if_block = if_blocks[current_block_type_index];
+        if (!if_block) {
+          if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
+          if_block.c();
+        } else {
+          if_block.p(ctx2, dirty);
+        }
+        transition_in(if_block, 1);
+        if_block.m(if_block_anchor.parentNode, if_block_anchor);
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(if_block_anchor);
+      }
+      if_blocks[current_block_type_index].d(detaching);
+    }
+  };
+}
+function create_each_block_1(ctx) {
+  let nftcard;
+  let current;
+  nftcard = new NftCard({
+    props: {
+      accountType: NftCardTypes.Friends,
+      nft: (
+        /*friend*/
+        ctx[42]
+      ),
+      clickable: false
+    }
+  });
+  return {
+    c() {
+      create_component(nftcard.$$.fragment);
+    },
+    m(target, anchor) {
+      mount_component(nftcard, target, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      const nftcard_changes = {};
+      if (dirty[0] & /*ownInvites*/
+      16)
+        nftcard_changes.nft = /*friend*/
+        ctx2[42];
+      nftcard.$set(nftcard_changes);
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(nftcard.$$.fragment, local);
+      current = true;
+    },
+    o(local) {
+      transition_out(nftcard.$$.fragment, local);
+      current = false;
+    },
+    d(detaching) {
+      destroy_component(nftcard, detaching);
+    }
+  };
+}
+function create_else_block(ctx) {
+  let div;
+  return {
+    c() {
+      div = element("div");
+      div.textContent = "No friends yet";
+      attr(div, "class", "svelte-1cmdhau");
+    },
+    m(target, anchor) {
+      insert(target, div, anchor);
+    },
+    p: noop,
+    i: noop,
+    o: noop,
+    d(detaching) {
+      if (detaching) {
+        detach(div);
+      }
+    }
+  };
+}
+function create_if_block_2(ctx) {
+  let each_1_anchor;
+  let current;
+  let each_value = ensure_array_like(
+    /*friends*/
+    ctx[5].map(
+      /*friendToNft*/
+      ctx[13]
+    )
+  );
+  let each_blocks = [];
+  for (let i = 0; i < each_value.length; i += 1) {
+    each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
+  }
+  const out = (i) => transition_out(each_blocks[i], 1, 1, () => {
+    each_blocks[i] = null;
+  });
+  return {
+    c() {
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        each_blocks[i].c();
+      }
+      each_1_anchor = empty$1();
+    },
+    m(target, anchor) {
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        if (each_blocks[i]) {
+          each_blocks[i].m(target, anchor);
+        }
+      }
+      insert(target, each_1_anchor, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      if (dirty[0] & /*friends, friendToNft*/
+      8224) {
+        each_value = ensure_array_like(
+          /*friends*/
+          ctx2[5].map(
+            /*friendToNft*/
+            ctx2[13]
+          )
+        );
+        let i;
+        for (i = 0; i < each_value.length; i += 1) {
+          const child_ctx = get_each_context$1(ctx2, each_value, i);
+          if (each_blocks[i]) {
+            each_blocks[i].p(child_ctx, dirty);
+            transition_in(each_blocks[i], 1);
+          } else {
+            each_blocks[i] = create_each_block$1(child_ctx);
+            each_blocks[i].c();
+            transition_in(each_blocks[i], 1);
+            each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
+          }
+        }
+        group_outros();
+        for (i = each_value.length; i < each_blocks.length; i += 1) {
+          out(i);
+        }
+        check_outros();
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      for (let i = 0; i < each_value.length; i += 1) {
+        transition_in(each_blocks[i]);
+      }
+      current = true;
+    },
+    o(local) {
+      each_blocks = each_blocks.filter(Boolean);
+      for (let i = 0; i < each_blocks.length; i += 1) {
+        transition_out(each_blocks[i]);
+      }
+      current = false;
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(each_1_anchor);
+      }
+      destroy_each(each_blocks, detaching);
+    }
+  };
+}
+function create_each_block$1(ctx) {
+  let nftcard;
+  let current;
+  nftcard = new NftCard({
+    props: {
+      nft: (
+        /*friend*/
+        ctx[42]
+      ),
+      accountType: NftCardTypes.Friends
+    }
+  });
+  return {
+    c() {
+      create_component(nftcard.$$.fragment);
+    },
+    m(target, anchor) {
+      mount_component(nftcard, target, anchor);
+      current = true;
+    },
+    p(ctx2, dirty) {
+      const nftcard_changes = {};
+      if (dirty[0] & /*friends*/
+      32)
+        nftcard_changes.nft = /*friend*/
+        ctx2[42];
+      nftcard.$set(nftcard_changes);
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(nftcard.$$.fragment, local);
+      current = true;
+    },
+    o(local) {
+      transition_out(nftcard.$$.fragment, local);
+      current = false;
+    },
+    d(detaching) {
+      destroy_component(nftcard, detaching);
+    }
+  };
+}
+function create_fragment$2(ctx) {
+  let div5;
+  let div1;
+  let t3;
+  let div4;
+  let ul;
+  let li0;
+  let div2;
+  let li0_class_value;
+  let t5;
+  let li1;
+  let div3;
+  let t6;
+  let t7_value = (
+    /*invites*/
+    ctx[3].length ? "(" + /*invites*/
+    ctx[3].length + ")" : ""
+  );
+  let t7;
+  let li1_class_value;
+  let t8;
+  let current_block_type_index;
+  let if_block;
+  let current;
+  let mounted;
+  let dispose;
+  const if_block_creators = [create_if_block, create_else_block_2];
+  const if_blocks = [];
+  function select_block_type(ctx2, dirty) {
+    if (
+      /*activeTabValue*/
+      ctx2[0] == 1
+    )
+      return 0;
+    return 1;
+  }
+  current_block_type_index = select_block_type(ctx);
+  if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+  return {
+    c() {
+      div5 = element("div");
+      div1 = element("div");
+      div1.innerHTML = `<h2 class="svelte-1cmdhau">Friends</h2> <div>Accept and request friendship from other NFT owners</div>`;
+      t3 = space();
+      div4 = element("div");
+      ul = element("ul");
+      li0 = element("li");
+      div2 = element("div");
+      div2.textContent = "Get Friends";
+      t5 = space();
+      li1 = element("li");
+      div3 = element("div");
+      t6 = text("Confirm Friends ");
+      t7 = text(t7_value);
+      t8 = space();
+      if_block.c();
+      attr(div1, "class", "friends-header svelte-1cmdhau");
+      attr(div2, "tabindex", "0");
+      attr(div2, "role", "button");
+      attr(div2, "class", "svelte-1cmdhau");
+      attr(li0, "class", li0_class_value = null_to_empty(
+        /*activeTabValue*/
+        ctx[0] === 1 ? "active" : ""
+      ) + " svelte-1cmdhau");
+      attr(div3, "tabindex", "0");
+      attr(div3, "role", "button");
+      attr(div3, "class", "svelte-1cmdhau");
+      attr(li1, "class", li1_class_value = null_to_empty(
+        /*activeTabValue*/
+        ctx[0] === 2 ? "active" : ""
+      ) + " svelte-1cmdhau");
+      attr(ul, "class", "svelte-1cmdhau");
+      attr(div4, "class", "tabs-wrap svelte-1cmdhau");
+      attr(div5, "class", "my-wrap");
+    },
+    m(target, anchor) {
+      insert(target, div5, anchor);
+      append(div5, div1);
+      append(div5, t3);
+      append(div5, div4);
+      append(div4, ul);
+      append(ul, li0);
+      append(li0, div2);
+      append(ul, t5);
+      append(ul, li1);
+      append(li1, div3);
+      append(div3, t6);
+      append(div3, t7);
+      append(div4, t8);
+      if_blocks[current_block_type_index].m(div4, null);
+      current = true;
+      if (!mounted) {
+        dispose = [
+          listen(
+            div2,
+            "click",
+            /*friendsHandler*/
+            ctx[15]
+          ),
+          listen(
+            div2,
+            "keypress",
+            /*friendsHandler*/
+            ctx[15]
+          ),
+          listen(
+            div3,
+            "click",
+            /*inviteConfirmHandler*/
+            ctx[14]
+          ),
+          listen(
+            div3,
+            "keypress",
+            /*inviteConfirmHandler*/
+            ctx[14]
+          )
+        ];
+        mounted = true;
+      }
+    },
+    p(ctx2, dirty) {
+      if (!current || dirty[0] & /*activeTabValue*/
+      1 && li0_class_value !== (li0_class_value = null_to_empty(
+        /*activeTabValue*/
+        ctx2[0] === 1 ? "active" : ""
+      ) + " svelte-1cmdhau")) {
+        attr(li0, "class", li0_class_value);
+      }
+      if ((!current || dirty[0] & /*invites*/
+      8) && t7_value !== (t7_value = /*invites*/
+      ctx2[3].length ? "(" + /*invites*/
+      ctx2[3].length + ")" : ""))
+        set_data(t7, t7_value);
+      if (!current || dirty[0] & /*activeTabValue*/
+      1 && li1_class_value !== (li1_class_value = null_to_empty(
+        /*activeTabValue*/
+        ctx2[0] === 2 ? "active" : ""
+      ) + " svelte-1cmdhau")) {
+        attr(li1, "class", li1_class_value);
+      }
+      let previous_block_index = current_block_type_index;
+      current_block_type_index = select_block_type(ctx2);
+      if (current_block_type_index === previous_block_index) {
+        if_blocks[current_block_type_index].p(ctx2, dirty);
+      } else {
+        group_outros();
+        transition_out(if_blocks[previous_block_index], 1, 1, () => {
+          if_blocks[previous_block_index] = null;
+        });
+        check_outros();
+        if_block = if_blocks[current_block_type_index];
+        if (!if_block) {
+          if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx2);
+          if_block.c();
+        } else {
+          if_block.p(ctx2, dirty);
+        }
+        transition_in(if_block, 1);
+        if_block.m(div4, null);
+      }
+    },
+    i(local) {
+      if (current)
+        return;
+      transition_in(if_block);
+      current = true;
+    },
+    o(local) {
+      transition_out(if_block);
+      current = false;
+    },
+    d(detaching) {
+      if (detaching) {
+        detach(div5);
+      }
+      if_blocks[current_block_type_index].d();
+      mounted = false;
+      run_all(dispose);
+    }
+  };
+}
+let loading = false;
+function isNumeric(str) {
+  return /^[0-9]+$/.test(str);
+}
+function instance$2($$self, $$props, $$invalidate) {
+  let $notify;
+  component_subscribe($$self, notify, ($$value) => $$invalidate(32, $notify = $$value));
+  let { activeTabValue = 1 } = $$props;
+  let { friendsTabActive = true } = $$props;
+  let friendId = "";
+  let selectedInvite = "-1";
+  let invites = [];
+  let ownInvites = [];
+  let friends = [];
+  let token;
+  let client;
+  let offerFee = 0;
+  let isBaseNameExist;
+  let isBaseNameExistPending;
+  let debounceTimer;
+  let debouncePendingTimer;
+  let baseName;
+  let baseNameAddress;
+  const coordinatorContract = tokenscript.eth.getContractInstance("messageCoordinator");
+  context.data.subscribe(async (value) => {
+    console.log(`Dump: ${JSON.stringify(value)}`);
+    if (!value.token)
+      return;
+    token = value.token;
+    showLoader.set(true);
+    client = await context.getMessageClient();
+    await loadInvites();
+    await loadOwnInvites();
+    showLoader.set(false);
+  });
+  async function populateNames(friends2, invites2) {
+    for (let i = 0; i < friends2.length; i++) {
+      const item = friends2[i];
+      let name = cachedNames.get(item.sendingTokenId);
+      if (name == void 0 || name.length == 0) {
+        await resolveNameFromTokenId(item.sendingTokenId, token.contractAddress);
+      }
+    }
+    for (let i = 0; i < invites2.length; i++) {
+      const item = invites2[i];
+      let name = cachedNames.get(item.sendingTokenId);
+      if (name == void 0 || name.length == 0) {
+        await resolveNameFromTokenId(item.sendingTokenId, token.contractAddress);
+      }
+    }
+    return friends2;
+  }
+  async function populateFeeInv(invites2) {
+    const thisContractAddr = token.contractAddress;
+    const coordinatorContractAddr = coordinatorContract.target;
+    for (let i = 0; i < invites2.length; i++) {
+      const item = invites2[i];
+      let result = await getCommitmentData(coordinatorContractAddr, token.chainId, thisContractAddr, token.tokenId, item.sendingTokenId);
+      invites2[i].inviteCommitFee = result.value;
+    }
+    return invites2;
+  }
+  async function populateFee(invites2) {
+    const thisContractAddr = token.contractAddress;
+    const coordinatorContractAddr = coordinatorContract.target;
+    for (let i = 0; i < invites2.length; i++) {
+      const item = invites2[i];
+      let result = await getCommitmentData(coordinatorContractAddr, token.chainId, thisContractAddr, item.sendingTokenId, token.tokenId);
+      invites2[i].inviteCommitFee = result.value;
+    }
+    return invites2;
+  }
+  async function getFriends() {
+    const myFriends = await client.getApprovedFriend();
+    const populateFriends = await populateNames(myFriends, []);
+    return populateFriends;
+  }
+  async function populateFriendInvites() {
+    const theseInvites = await client.getFriendInvites();
+    await populateNames([], theseInvites);
+    const invitesWithFee = await populateFee(theseInvites);
+    return invitesWithFee;
+  }
+  async function loadOwnInvites() {
+    try {
+      const currentInvites = await client.getOwnFriendInvites();
+      const populateFriends = await populateNames([], currentInvites);
+      $$invalidate(4, ownInvites = await populateFeeInv(currentInvites));
+      $$invalidate(5, friends = await getFriends());
+    } catch (e) {
+      set_store_value(
+        notify,
+        $notify = {
+          status: false,
+          message: "Message load failed: " + e.message
+        },
+        $notify
+      );
+    }
+  }
+  async function inviteContact(name = "") {
+    console.log(`Base Address: ${baseNameAddress}`);
+    if (baseNameAddress == null) {
+      console.log(`Address not resolved - should not be possible`);
+    }
+    let tokenId;
+    if (isNumeric(name)) {
+      tokenId = name;
+    } else {
+      tokenId = await resolveTokenId(name, token.contractAddress, baseNameAddress);
+    }
+    if (tokenId != null) {
+      inviteFriend(tokenId);
+    }
+  }
+  async function acceptInvite(localFriendId = "") {
+    showLoader.set(true);
+    try {
+      let t = web3.tokens.data.currentInstance;
+      console.log(`FR: ${localFriendId}`);
+      try {
+        localFriendId = BigInt(localFriendId).toString();
+      } catch (e) {
+        throw new Error("Invalid token ID. Number or hex string allowed only");
+      }
+      if (!localFriendId || !t.tokenId) {
+        throw new Error("TokenId missing");
+      }
+      console.log(`Message Coordinator: ${coordinatorContract.target}`);
+      for (let i = 0; i < invites.length; i++) {
+        const item = invites[i];
+        if (item.sendingTokenId === localFriendId) {
+          console.log(`FROMID ${item.sendingTokenId} FEE: ${item.inviteCommitFee}`);
+          tokenscript.action.setProps({ originId: item.sendingTokenId });
+          if (await tokenscript.action.executeTransaction("acceptFee")) {
+            console.log(`Executed accept function`);
+            const result = await client.postInviteFriendWithFee(localFriendId, coordinatorContract.target);
+            console.log({ result });
+            set_store_value(notify, $notify = { status: true, message: result.message }, $notify);
+            friendId = "";
+            await loadOwnInvites();
+            await loadInvites();
+          } else {
+            console.log(`Fail commit function`);
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      set_store_value(notify, $notify = { status: false, message: e.message }, $notify);
+      console.log(`ERRORR: ${e}`);
+    }
+    showLoader.set(false);
+  }
+  async function inviteFriend(localFriendId = "") {
+    showLoader.set(true);
+    try {
+      let t = web3.tokens.data.currentInstance;
+      console.log(`FR: ${localFriendId}`);
+      try {
+        localFriendId = BigInt(localFriendId).toString();
+      } catch (e) {
+        throw new Error("Invalid token ID. Number or hex string allowed only");
+      }
+      if (!localFriendId || !t.tokenId) {
+        throw new Error("TokenId missing");
+      }
+      console.log(`Message Coordinator: ${coordinatorContract.target}`);
+      let ethOffer = ethers.parseEther(offerFee.toString());
+      tokenscript.action.setProps({
+        targetId: localFriendId,
+        feeValue: ethOffer
+      });
+      if (await tokenscript.action.executeTransaction("commitFee")) {
+        console.log(`Executed commit function`);
+        const result = await client.postInviteFriendWithFee(localFriendId, coordinatorContract.target);
+        console.log({ result });
+        set_store_value(notify, $notify = { status: true, message: result.message }, $notify);
+        friendId = "";
+        await loadOwnInvites();
+        await loadInvites();
+      } else {
+        console.log(`Fail commit function`);
+      }
+    } catch (e) {
+      set_store_value(notify, $notify = { status: false, message: e.message }, $notify);
+      console.log(`ERRORR: ${e}`);
+    }
+    showLoader.set(false);
+  }
+  const loadInvites = async () => {
+    try {
+      $$invalidate(3, invites = await populateFriendInvites());
+    } catch (e) {
+      set_store_value(
+        notify,
+        $notify = {
+          status: false,
+          message: "Invite send failed: " + e.message
+        },
+        $notify
+      );
+    }
+  };
+  function inviteToNft(invite) {
+    const bigIntStr = invite.inviteCommitFee ? invite.inviteCommitFee.toString() : "0";
+    const fee = bigIntStr != "0" ? ethers.formatEther(bigIntStr) : "";
+    return {
+      unread: 0,
+      contract: token.contractAddress,
+      chainId: token.chainId.toString(),
+      wrongOwner: false,
+      friendsSharedKey: "",
+      yourSharedKey: "",
+      tokenId: invite.sendingTokenId,
+      owner: invite.sendingAddress,
+      tokenIdName: cachedNames.get(invite.sendingTokenId),
+      inviteCommitFee: fee
+    };
+  }
+  function friendToNft(friend) {
+    return {
+      unread: 0,
+      contract: token.contractAddress,
+      chainId: token.chainId.toString(),
+      tokenIdName: cachedNames.get(friend.sendingTokenId),
+      wrongOwner: false,
+      friendsSharedKey: "",
+      yourSharedKey: "",
+      tokenId: friend.sendingTokenId == token.tokenId ? friend.receivingTokenId : friend.sendingTokenId,
+      owner: friend.sendingTokenId == token.tokenId ? friend.receivingAddress : friend.sendingAddress
+    };
+  }
+  async function inviteConfirmHandler() {
+    $$invalidate(0, activeTabValue = 2);
+    await loadInvites();
+  }
+  async function friendsHandler() {
+    $$invalidate(0, activeTabValue = 1);
+    await loadOwnInvites();
+  }
+  const checkBaseName = async (event) => {
+    $$invalidate(9, baseName = event.target.value.toLowerCase());
+    if (isNumeric(baseName)) {
+      $$invalidate(8, isBaseNameExistPending = void 0);
+      $$invalidate(7, isBaseNameExist = void 0);
+      baseNameAddress = null;
+      baseNameAddress = await resolveOwnerOfTokenId(baseName, token.chainId, token.contractAddress);
+      $$invalidate(7, isBaseNameExist = true);
+      $$invalidate(8, isBaseNameExistPending = false);
+      return;
+    }
+    const suffix = ".base.eth";
+    if (baseName.endsWith(suffix)) {
+      $$invalidate(9, baseName = baseName.replace(suffix, ""));
+    }
+    $$invalidate(8, isBaseNameExistPending = void 0);
+    $$invalidate(7, isBaseNameExist = void 0);
+    baseNameAddress = null;
+    clearTimeout(debounceTimer);
+    clearTimeout(debouncePendingTimer);
+    debouncePendingTimer = setTimeout(
+      () => {
+        $$invalidate(8, isBaseNameExistPending = true);
+      },
+      500
+    );
+    debounceTimer = setTimeout(
+      async () => {
+        if (!(baseName == null ? void 0 : baseName.length)) {
+          $$invalidate(8, isBaseNameExistPending = void 0);
+          $$invalidate(7, isBaseNameExist = void 0);
+          return;
+        }
+        try {
+          baseNameAddress = await resolveOwner(baseName);
+          $$invalidate(7, isBaseNameExist = baseNameAddress !== null);
+          $$invalidate(8, isBaseNameExistPending = false);
+        } catch (error) {
+          $$invalidate(7, isBaseNameExist = false);
+        }
+      },
+      1e3
+    );
+  };
+  const input_handler = (event) => checkBaseName(event);
+  function input_input_handler() {
+    offerFee = to_number(this.value);
+    $$invalidate(6, offerFee);
+  }
+  const click_handler = () => {
+    inviteContact(baseName);
+  };
+  const click_handler_1 = () => {
+    $$invalidate(1, friendsTabActive = true);
+  };
+  const keypress_handler = () => {
+    $$invalidate(1, friendsTabActive = true);
+  };
+  const click_handler_2 = () => {
+    $$invalidate(1, friendsTabActive = false);
+  };
+  const keypress_handler_1 = () => {
+    $$invalidate(1, friendsTabActive = false);
+  };
+  const click_handler_3 = (invite) => {
+    $$invalidate(2, selectedInvite = invite.tokenId);
+  };
+  const click_handler_4 = () => {
+    selectedInvite != "-1" && acceptInvite(selectedInvite);
+  };
+  $$self.$$set = ($$props2) => {
+    if ("activeTabValue" in $$props2)
+      $$invalidate(0, activeTabValue = $$props2.activeTabValue);
+    if ("friendsTabActive" in $$props2)
+      $$invalidate(1, friendsTabActive = $$props2.friendsTabActive);
+  };
+  return [
+    activeTabValue,
+    friendsTabActive,
+    selectedInvite,
+    invites,
+    ownInvites,
+    friends,
+    offerFee,
+    isBaseNameExist,
+    isBaseNameExistPending,
+    baseName,
+    inviteContact,
+    acceptInvite,
+    inviteToNft,
+    friendToNft,
+    inviteConfirmHandler,
+    friendsHandler,
+    checkBaseName,
+    input_handler,
+    input_input_handler,
+    click_handler,
+    click_handler_1,
+    keypress_handler,
+    click_handler_2,
+    keypress_handler_1,
+    click_handler_3,
+    click_handler_4
+  ];
+}
+class Friendship extends SvelteComponent {
+  constructor(options) {
+    super();
+    init$2(this, options, instance$2, create_fragment$2, safe_not_equal, { activeTabValue: 0, friendsTabActive: 1 }, null, [-1, -1]);
+  }
+}
 function get_each_context(ctx, list, i) {
   const child_ctx = ctx.slice();
   child_ctx[5] = list[i];
@@ -29595,15 +31319,15 @@ function swapList() {
   ];
 }
 function instance$1($$self, $$props, $$invalidate) {
-  let loading = true;
+  let loading2 = true;
   let filteredSwaps;
   context.data.subscribe(async (value) => {
     if (!value.token)
       return;
     $$invalidate(1, filteredSwaps = swapList());
-    $$invalidate(0, loading = false);
+    $$invalidate(0, loading2 = false);
   });
-  return [loading, filteredSwaps];
+  return [loading2, filteredSwaps];
 }
 class Trade extends SvelteComponent {
   constructor(options) {
@@ -29701,7 +31425,7 @@ function instance($$self, $$props, $$invalidate) {
   let initialised = false;
   const routingMap = {
     "#messages": Messages,
-    "#friendship": Trade,
+    "#friendship": Friendship,
     "#info": Info,
     "#trade": Trade
   };

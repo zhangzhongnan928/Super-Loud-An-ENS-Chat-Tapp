@@ -15,7 +15,7 @@
 
 	const routingMap = {
 		'#messages': Messages,
-		'#friendship': Trade,
+		'#friendship': Friendship,
 		'#info': Info,
 		'#trade': Trade,
 	};
