@@ -5,22 +5,26 @@
 		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		  xmlns:ethereum="urn:ethereum:constantinople"
 		  xmlns:xhmtl="http://www.w3.org/1999/xhtml"
-		  name="BaseMessager">
-	<ts:label>
-		<ts:plurals xml:lang="en">
-			<ts:string quantity="one">Message Token</ts:string>
-			<ts:string quantity="other">Message Tokens</ts:string>
-		</ts:plurals>
-	</ts:label>
-	<ts:meta>
-        <ts:description xml:lang="en">
-            ENS Messaging Token
-        </ts:description>
-		<ts:iconUrl xml:lang="en">https://olive-managerial-lungfish-930.mypinata.cloud/ipfs/QmYANQDXKoooe6ok2e4ouWGy7oHdnL4ueJXDnQZAwYqUTQ?pinataGatewayToken=o2UKLRik4h3GXMfyFAjhOJ1TWRJK4F1aiQ2Oif_70syeO4lotZxj4HBudCW9a7TV</ts:iconUrl>
-    </ts:meta>
+		  name="ENS-Tapps">
+
+		  <ts:label>
+			<ts:plurals xml:lang="en">
+				<ts:string quantity="one">ENS Tapps</ts:string>
+				<ts:string quantity="other">ENS Tapps</ts:string>
+			</ts:plurals>
+		</ts:label>
+		<ts:meta>
+			<ts:description xml:lang="en">
+				Super Loud: An ENS Chat Tapp
+			</ts:description>
+			<ts:iconUrl xml:lang="en">https://ens.domains/assets/brand/mark/ens-mark-Blue.svg</ts:iconUrl>
+		</ts:meta>
 
 	<ts:contract interface="erc721" name="messagetoken">
 		<ts:address network="8453">0x03c4738ee98ae44591e1a4a4f3cab6641d95dd9a</ts:address>
+	</ts:contract>
+	<ts:contract name="messageCoordinator">
+		<ts:address network="8453">0xeb339c69735E08e8F0d0734A8908eC3F2051425F</ts:address>
 	</ts:contract>
 	
 	<ts:origins>
@@ -36,7 +40,7 @@
 
 		<ts:card type="token" name="friendship" origins="messagetoken">
 			<ts:label>
-				<ts:string xml:lang="en">Message other tokens</ts:string>
+				<ts:string xml:lang="en">Friendship</ts:string>
 			</ts:label>
 			<ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" urlFragment="friendship">
 				<ts:viewContent name="common"/>
@@ -61,4 +65,26 @@
 			</ts:view>
 		</ts:card>
 	</ts:cards>
+
+	<ts:transaction name="commitFee">
+		<ethereum:transaction as="uint" contract="messageCoordinator" function="createCommit">
+			<ts:data>
+				<ts:address ref="contractAddress_messagetoken"/>
+				<ts:uint256 ref="tokenId"/>
+				<ts:uint256 local-ref="targetId"/>
+			</ts:data>
+			<ethereum:value local-ref="feeValue" />
+		</ethereum:transaction>
+	</ts:transaction>
+
+	<ts:transaction name="acceptFee">
+		<ethereum:transaction as="uint" contract="messageCoordinator" function="completeCommitment">
+			<ts:data>
+				<ts:address ref="contractAddress_messagetoken"/>
+				<ts:uint256 local-ref="originId"/>
+				<ts:uint256 ref="tokenId"/>
+			</ts:data>
+		</ethereum:transaction>
+	</ts:transaction>
+
 </ts:token>

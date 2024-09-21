@@ -28,6 +28,29 @@ const tokenDiscoveryAPI = "https://api.token-discovery.tokenscript.org/";
     return isAvailable;
   }
 
+  export async function getCommitmentData(coordinatorContractAddr: string, chainId: number, thisContractAddr: string, originId: string, targetId: string): Promise<any> {
+    let baseRPC = "https://base-rpc.publicnode.com";
+     const provider = new ethers.JsonRpcProvider(baseRPC, {
+       chainId: chainId,
+       name: 'base'
+     });
+
+     const commitController = new ethers.Contract(coordinatorContractAddr, [
+       'function commitValue(address messagingContract, uint256 originId, uint256 targetId) view returns (uint256 value, bool complete)'
+     ], provider);
+
+     let result: any = null;
+ 
+     try {
+      result = await commitController.commitValue(thisContractAddr, originId, targetId);
+     } catch (error) {
+      console.log(`ERR: ${error}`);
+ 
+     }
+ 
+     return result;
+  }
+
   //given tokenId, get the name
   export async function resolveNameFromTokenId(tokenId: string, contractAddress: string): Promise<string> {
     if (tokenId == null || tokenId.length == 0) {
@@ -115,6 +138,32 @@ const tokenDiscoveryAPI = "https://api.token-discovery.tokenscript.org/";
 
     return null;
 	}  
+
+  //given tokenId, get the name
+  export async function resolveOwnerOfTokenId(tokenId: string, chainId: number, contractAddress: string): Promise<string> {
+    //const provider = new ethers.JsonRpcProvider(window.rpcURL, {
+    //const basesep = "https://sepolia.base.org";
+    let baseRPC = "https://base-rpc.publicnode.com";
+    const provider = new ethers.JsonRpcProvider(baseRPC, {
+       chainId: chainId,
+       name: 'base'
+     });
+ 
+     const nameResolver = new ethers.Contract(contractAddress, [
+       'function ownerOf(uint256 tokenId) view returns (address)'
+     ], provider);
+
+     let ownerAddress = "";
+ 
+     try {
+       ownerAddress = await nameResolver.ownerOf(tokenId);
+     } catch (error) {
+ 
+     }
+ 
+     return ownerAddress;
+ }
+
 
   export async function resolveOwner(name: string = ''): Promise<string | null> {
 		// does the name exist?

@@ -23,6 +23,14 @@ export class MessageClient {
 		);
 	}
 
+	public async postInviteFriendWithFee(friendId: number|string, coordinator: string) {
+		return await this.requestWithAuth(
+			`/invite-friend/${this.tokenContext.chainId}/${this.tokenContext.contractAddress}/${this.tokenContext.tokenId}/${coordinator}`,
+			'post',
+			{ friendId }
+		);
+	}
+
 	public async getSecureMessaging(friendId: number) {
 		return await this.requestWithAuth(
 			`/shared-key/${this.tokenContext.chainId}/${this.tokenContext.contractAddress}/${this.tokenContext.tokenId}/${friendId}`,

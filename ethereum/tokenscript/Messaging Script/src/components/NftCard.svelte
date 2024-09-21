@@ -23,7 +23,9 @@
                 </h4>
                 
             {:else}
-                <h4 data-owner-changed="{nft.wrongOwner ? 'Owner changed' : ''}">{ nft.tokenIdName ? nft.tokenIdName : ("#" + nft.tokenId)}</h4>
+                <h4 data-owner-changed="{nft.wrongOwner ? 'Owner changed' : ''}">{ nft.tokenIdName ? nft.tokenIdName : ("#" + nft.tokenId)}
+                {nft.inviteCommitFee ? `Value to connect: ${nft.inviteCommitFee} Eth` : ""}
+                </h4>
             {/if}
             {#if accountType != NftCardTypes.Friends}
                 <span class="unread-box {nft.unread ? "has-unread" : ""}">{nft.unread} Unread</span>

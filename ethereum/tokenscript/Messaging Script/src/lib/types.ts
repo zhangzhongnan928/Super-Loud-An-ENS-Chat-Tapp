@@ -18,12 +18,14 @@ export type MessagesData = {
 	messages?: [];
 	friendsSharedKey: string;
 	yourSharedKey: string;
+	inviteCommitFee?: string;
 };
 
 export type Invite = {
 	createdAt: string;
 	sendingAddress: string;
 	sendingTokenId: string;
+	inviteCommitFee?: BigInt;
 };
 
 export type Friend = {

@@ -172,6 +172,9 @@ function attr(node, attribute, value) {
   else if (node.getAttribute(attribute) !== value)
     node.setAttribute(attribute, value);
 }
+function to_number(value) {
+  return value === "" ? null : +value;
+}
 function children(element2) {
   return Array.from(element2.childNodes);
 }
@@ -17042,21 +17045,19 @@ function spelunkMessage(value) {
   return result;
 }
 const ensLookupCache = {};
+const ensAddress$1 = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
 async function lookupEnsName(address) {
-  console.log("tesf1");
   if (ensLookupCache[address])
     return ensLookupCache[address];
-  const provider = new JsonRpcProvider(
-    "https://eth-mainnet.g.alchemy.com/v2/2bJxn0VGXp9U5EOfA6CoMGU-rrd-BIIT",
-    "mainnet",
-    {
-      staticNetwork: Network.from("mainnet")
-    }
-  );
+  const ethRPC = tokenscript.eth.getRpcUrls(1)[0];
+  const provider = new JsonRpcProvider(ethRPC, {
+    chainId: 1,
+    name: "mainnet",
+    ensAddress: ensAddress$1
+  });
   return await provider.lookupAddress(address) || "";
 }
 async function getContract(token) {
-  console.log("tesf2");
   const network = new Network("polygon", chainID);
   const provider = new JsonRpcProvider(rpcURL, network, {
     staticNetwork: network
@@ -17129,6 +17130,13 @@ const _MessageClient = class _MessageClient2 {
   async postInviteFriend(friendId) {
     return await this.requestWithAuth(
       `/invite-friend/${this.tokenContext.chainId}/${this.tokenContext.contractAddress}/${this.tokenContext.tokenId}`,
+      "post",
+      { friendId }
+    );
+  }
+  async postInviteFriendWithFee(friendId, coordinator) {
+    return await this.requestWithAuth(
+      `/invite-friend/${this.tokenContext.chainId}/${this.tokenContext.contractAddress}/${this.tokenContext.tokenId}/${coordinator}`,
       "post",
       { friendId }
     );
@@ -17722,7 +17730,7 @@ function create_if_block$5(ctx) {
 }
 function create_else_block$3(ctx) {
   let h4;
-  let t_value = (
+  let t0_value = (
     /*nft*/
     (ctx[0].tokenIdName ? (
       /*nft*/
@@ -17730,29 +17738,45 @@ function create_else_block$3(ctx) {
     ) : "#" + /*nft*/
     ctx[0].tokenId) + ""
   );
-  let t;
+  let t0;
+  let t1;
+  let t2_value = (
+    /*nft*/
+    ctx[0].inviteCommitFee ? `Value to connect: ${/*nft*/
+    ctx[0].inviteCommitFee} Eth` : ""
+  );
+  let t2;
   let h4_data_owner_changed_value;
   return {
     c() {
       h4 = element("h4");
-      t = text(t_value);
+      t0 = text(t0_value);
+      t1 = space();
+      t2 = text(t2_value);
       attr(h4, "data-owner-changed", h4_data_owner_changed_value = /*nft*/
       ctx[0].wrongOwner ? "Owner changed" : "");
       attr(h4, "class", "svelte-hii6zz");
     },
     m(target, anchor) {
       insert(target, h4, anchor);
-      append(h4, t);
+      append(h4, t0);
+      append(h4, t1);
+      append(h4, t2);
     },
     p(ctx2, dirty) {
       if (dirty & /*nft*/
-      1 && t_value !== (t_value = /*nft*/
+      1 && t0_value !== (t0_value = /*nft*/
       (ctx2[0].tokenIdName ? (
         /*nft*/
         ctx2[0].tokenIdName
       ) : "#" + /*nft*/
       ctx2[0].tokenId) + ""))
-        set_data(t, t_value);
+        set_data(t0, t0_value);
+      if (dirty & /*nft*/
+      1 && t2_value !== (t2_value = /*nft*/
+      ctx2[0].inviteCommitFee ? `Value to connect: ${/*nft*/
+      ctx2[0].inviteCommitFee} Eth` : ""))
+        set_data(t2, t2_value);
       if (dirty & /*nft*/
       1 && h4_data_owner_changed_value !== (h4_data_owner_changed_value = /*nft*/
       ctx2[0].wrongOwner ? "Owner changed" : "")) {
@@ -28421,6 +28445,26 @@ function formatReturnValue(bn2) {
 }
 const ensAddress = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
 const tokenDiscoveryAPI = "https://api.token-discovery.tokenscript.org/";
+async function getCommitmentData(coordinatorContractAddr, chainId, thisContractAddr, originId, targetId) {
+  console.log(`RPC: ${window.rpcURL}`);
+  let baseRPC = "https://base-rpc.publicnode.com";
+  const provider = new JsonRpcProvider(baseRPC, {
+    chainId,
+    name: "base"
+  });
+  const commitController = new Contract(coordinatorContractAddr, [
+    "function commitValue(address messagingContract, uint256 originId, uint256 targetId) view returns (uint256 value, bool complete)"
+  ], provider);
+  let result = null;
+  try {
+    console.log(`Call: ${originId} ${targetId}`);
+    result = await commitController.commitValue(thisContractAddr, originId, targetId);
+    console.log(`RES: ${result.value}`);
+  } catch (error) {
+    console.log(`ERR: ${error}`);
+  }
+  return result;
+}
 async function resolveNameFromTokenId(tokenId, contractAddress) {
   if (tokenId == null || tokenId.length == 0) {
     return "";
@@ -28483,6 +28527,23 @@ async function resolveTokenId(name = "", contract, owner) {
   } catch (e) {
   }
   return null;
+}
+async function resolveOwnerOfTokenId(tokenId, chainId, contractAddress) {
+  console.log(`RPC: ${window.rpcURL}`);
+  let baseRPC = "https://base-rpc.publicnode.com";
+  const provider = new JsonRpcProvider(baseRPC, {
+    chainId,
+    name: "base"
+  });
+  const nameResolver = new Contract(contractAddress, [
+    "function ownerOf(uint256 tokenId) view returns (address)"
+  ], provider);
+  let ownerAddress = "";
+  try {
+    ownerAddress = await nameResolver.ownerOf(tokenId);
+  } catch (error) {
+  }
+  return ownerAddress;
 }
 async function resolveOwner(name = "") {
   const suffix = ".base.eth";
@@ -29434,17 +29495,17 @@ class NotFound extends SvelteComponent {
 const Friendship_svelte_svelte_type_style_lang = "";
 function get_each_context_2(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[41] = list[i];
+  child_ctx[47] = list[i];
   return child_ctx;
 }
 function get_each_context_1(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[36] = list[i];
+  child_ctx[42] = list[i];
   return child_ctx;
 }
 function get_each_context(ctx, list, i) {
   const child_ctx = ctx.slice();
-  child_ctx[36] = list[i];
+  child_ctx[42] = list[i];
   return child_ctx;
 }
 function create_else_block_2(ctx) {
@@ -29494,7 +29555,7 @@ function create_else_block_2(ctx) {
           div0,
           "click",
           /*click_handler_4*/
-          ctx[23]
+          ctx[25]
         );
         mounted = true;
       }
@@ -29588,12 +29649,12 @@ function create_if_block(ctx) {
   let dispose;
   let if_block0 = (
     /*isBaseNameExistPending*/
-    ctx[7] === true && create_if_block_5()
+    ctx[8] === true && create_if_block_5()
   );
   let if_block1 = (
     /*isBaseNameExist*/
-    ctx[6] === true && !/*isBaseNameExistPending*/
-    ctx[7] && create_if_block_4(ctx)
+    ctx[7] === true && !/*isBaseNameExistPending*/
+    ctx[8] && create_if_block_4(ctx)
   );
   const if_block_creators = [create_if_block_1, create_if_block_3, create_else_block_1];
   const if_blocks = [];
@@ -29648,10 +29709,10 @@ function create_if_block(ctx) {
       attr(input, "placeholder", "ENS name");
       attr(input, "class", "svelte-1cmdhau");
       attr(div1, "class", div1_class_value = "btn-gradient " + /*isBaseNameExist*/
-      (ctx[6] === true && !/*isBaseNameExistPending*/
-      ctx[7] ? "active" : "") + " svelte-1cmdhau");
+      (ctx[7] === true && !/*isBaseNameExistPending*/
+      ctx[8] ? "active" : "") + " svelte-1cmdhau");
       attr(div1, "disabled", div1_disabled_value = /*isBaseNameExist*/
-      ctx[6] !== true);
+      ctx[7] !== true);
       attr(div2, "id", "invite-friend");
       attr(div2, "class", "svelte-1cmdhau");
       attr(div3, "class", div3_class_value = null_to_empty(
@@ -29698,37 +29759,37 @@ function create_if_block(ctx) {
             input,
             "input",
             /*input_handler*/
-            ctx[16]
+            ctx[17]
           ),
           listen(
             div1,
             "click",
             /*click_handler*/
-            ctx[17]
+            ctx[19]
           ),
           listen(
             div3,
             "click",
             /*click_handler_1*/
-            ctx[18]
+            ctx[20]
           ),
           listen(
             div3,
             "keypress",
             /*keypress_handler*/
-            ctx[19]
+            ctx[21]
           ),
           listen(
             div4,
             "click",
             /*click_handler_2*/
-            ctx[20]
+            ctx[22]
           ),
           listen(
             div4,
             "keypress",
             /*keypress_handler_1*/
-            ctx[21]
+            ctx[23]
           )
         ];
         mounted = true;
@@ -29737,7 +29798,7 @@ function create_if_block(ctx) {
     p(ctx2, dirty) {
       if (
         /*isBaseNameExistPending*/
-        ctx2[7] === true
+        ctx2[8] === true
       ) {
         if (if_block0)
           ;
@@ -29752,8 +29813,8 @@ function create_if_block(ctx) {
       }
       if (
         /*isBaseNameExist*/
-        ctx2[6] === true && !/*isBaseNameExistPending*/
-        ctx2[7]
+        ctx2[7] === true && !/*isBaseNameExistPending*/
+        ctx2[8]
       ) {
         if (if_block1) {
           if_block1.p(ctx2, dirty);
@@ -29767,14 +29828,14 @@ function create_if_block(ctx) {
         if_block1 = null;
       }
       if (!current || dirty[0] & /*isBaseNameExist, isBaseNameExistPending*/
-      192 && div1_class_value !== (div1_class_value = "btn-gradient " + /*isBaseNameExist*/
-      (ctx2[6] === true && !/*isBaseNameExistPending*/
-      ctx2[7] ? "active" : "") + " svelte-1cmdhau")) {
+      384 && div1_class_value !== (div1_class_value = "btn-gradient " + /*isBaseNameExist*/
+      (ctx2[7] === true && !/*isBaseNameExistPending*/
+      ctx2[8] ? "active" : "") + " svelte-1cmdhau")) {
         attr(div1, "class", div1_class_value);
       }
       if (!current || dirty[0] & /*isBaseNameExist*/
-      64 && div1_disabled_value !== (div1_disabled_value = /*isBaseNameExist*/
-      ctx2[6] !== true)) {
+      128 && div1_disabled_value !== (div1_disabled_value = /*isBaseNameExist*/
+      ctx2[7] !== true)) {
         attr(div1, "disabled", div1_disabled_value);
       }
       if ((!current || dirty[0] & /*friends*/
@@ -29878,7 +29939,7 @@ function create_if_block_6(ctx) {
     /*invites*/
     ctx[3].map(
       /*inviteToNft*/
-      ctx[11]
+      ctx[12]
     )
   );
   let each_blocks = [];
@@ -29917,12 +29978,12 @@ function create_if_block_6(ctx) {
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*invites, inviteToNft, selectedInvite*/
-      2060) {
+      4108) {
         each_value_2 = ensure_array_like(
           /*invites*/
           ctx2[3].map(
             /*inviteToNft*/
-            ctx2[11]
+            ctx2[12]
           )
         );
         let i;
@@ -29978,9 +30039,9 @@ function create_each_block_2(ctx) {
   function click_handler_3() {
     return (
       /*click_handler_3*/
-      ctx[22](
+      ctx[24](
         /*invite*/
-        ctx[41]
+        ctx[47]
       )
     );
   }
@@ -29988,7 +30049,7 @@ function create_each_block_2(ctx) {
     props: {
       nft: (
         /*invite*/
-        ctx[41]
+        ctx[47]
       ),
       accountType: NftCardTypes.Friends,
       selected: (
@@ -30012,7 +30073,7 @@ function create_each_block_2(ctx) {
       if (dirty[0] & /*invites*/
       8)
         nftcard_changes.nft = /*invite*/
-        ctx[41];
+        ctx[47];
       if (dirty[0] & /*selectedInvite*/
       4)
         nftcard_changes.selected = /*selectedInvite*/
@@ -30056,46 +30117,97 @@ function create_if_block_5(ctx) {
   };
 }
 function create_if_block_4(ctx) {
-  let div;
+  let div0;
   let p;
   let t0;
   let t1;
   let t2;
+  let t3;
+  let div1;
+  let t5;
+  let input;
+  let mounted;
+  let dispose;
   return {
     c() {
-      div = element("div");
+      div0 = element("div");
       p = element("p");
       t0 = text("✅ ");
       t1 = text(
         /*baseName*/
-        ctx[8]
+        ctx[9]
       );
       t2 = text(" is available for messaging");
-      set_style(div, "font-size", "14px");
-      set_style(div, "padding", "12px 4px");
-      set_style(div, "border-radius", "20px");
-      attr(div, "class", "svelte-1cmdhau");
+      t3 = space();
+      div1 = element("div");
+      div1.textContent = "Offer amount for friend request (can be zero).";
+      t5 = space();
+      input = element("input");
+      set_style(div0, "font-size", "14px");
+      set_style(div0, "padding", "12px 4px");
+      set_style(div0, "border-radius", "20px");
+      attr(div0, "class", "svelte-1cmdhau");
+      attr(div1, "class", "description svelte-1cmdhau");
+      attr(input, "type", "number");
+      attr(input, "id", "offer-input");
+      input.required = true;
+      input.disabled = loading;
+      attr(input, "placeholder", "Offer Fee in $BASE");
+      attr(input, "class", "svelte-1cmdhau");
     },
     m(target, anchor) {
-      insert(target, div, anchor);
-      append(div, p);
+      insert(target, div0, anchor);
+      append(div0, p);
       append(p, t0);
       append(p, t1);
       append(p, t2);
+      insert(target, t3, anchor);
+      insert(target, div1, anchor);
+      insert(target, t5, anchor);
+      insert(target, input, anchor);
+      set_input_value(
+        input,
+        /*offerFee*/
+        ctx[6]
+      );
+      if (!mounted) {
+        dispose = listen(
+          input,
+          "input",
+          /*input_input_handler*/
+          ctx[18]
+        );
+        mounted = true;
+      }
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*baseName*/
-      256)
+      512)
         set_data(
           t1,
           /*baseName*/
-          ctx2[8]
+          ctx2[9]
         );
+      if (dirty[0] & /*offerFee*/
+      64 && to_number(input.value) !== /*offerFee*/
+      ctx2[6]) {
+        set_input_value(
+          input,
+          /*offerFee*/
+          ctx2[6]
+        );
+      }
     },
     d(detaching) {
       if (detaching) {
-        detach(div);
+        detach(div0);
+        detach(t3);
+        detach(div1);
+        detach(t5);
+        detach(input);
       }
+      mounted = false;
+      dispose();
     }
   };
 }
@@ -30127,7 +30239,7 @@ function create_if_block_3(ctx) {
     /*ownInvites*/
     ctx[4].map(
       /*inviteToNft*/
-      ctx[11]
+      ctx[12]
     )
   );
   let each_blocks = [];
@@ -30155,12 +30267,12 @@ function create_if_block_3(ctx) {
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*ownInvites, inviteToNft*/
-      2064) {
+      4112) {
         each_value_1 = ensure_array_like(
           /*ownInvites*/
           ctx2[4].map(
             /*inviteToNft*/
-            ctx2[11]
+            ctx2[12]
           )
         );
         let i;
@@ -30281,7 +30393,7 @@ function create_each_block_1(ctx) {
       accountType: NftCardTypes.Friends,
       nft: (
         /*friend*/
-        ctx[36]
+        ctx[42]
       ),
       clickable: false
     }
@@ -30299,7 +30411,7 @@ function create_each_block_1(ctx) {
       if (dirty[0] & /*ownInvites*/
       16)
         nftcard_changes.nft = /*friend*/
-        ctx2[36];
+        ctx2[42];
       nftcard.$set(nftcard_changes);
     },
     i(local) {
@@ -30345,7 +30457,7 @@ function create_if_block_2(ctx) {
     /*friends*/
     ctx[5].map(
       /*friendToNft*/
-      ctx[12]
+      ctx[13]
     )
   );
   let each_blocks = [];
@@ -30373,12 +30485,12 @@ function create_if_block_2(ctx) {
     },
     p(ctx2, dirty) {
       if (dirty[0] & /*friends, friendToNft*/
-      4128) {
+      8224) {
         each_value = ensure_array_like(
           /*friends*/
           ctx2[5].map(
             /*friendToNft*/
-            ctx2[12]
+            ctx2[13]
           )
         );
         let i;
@@ -30431,7 +30543,7 @@ function create_each_block(ctx) {
     props: {
       nft: (
         /*friend*/
-        ctx[36]
+        ctx[42]
       ),
       accountType: NftCardTypes.Friends
     }
@@ -30449,7 +30561,7 @@ function create_each_block(ctx) {
       if (dirty[0] & /*friends*/
       32)
         nftcard_changes.nft = /*friend*/
-        ctx2[36];
+        ctx2[42];
       nftcard.$set(nftcard_changes);
     },
     i(local) {
@@ -30564,25 +30676,25 @@ function create_fragment$1(ctx) {
             div2,
             "click",
             /*friendsHandler*/
-            ctx[14]
+            ctx[15]
           ),
           listen(
             div2,
             "keypress",
             /*friendsHandler*/
-            ctx[14]
+            ctx[15]
           ),
           listen(
             div3,
             "click",
             /*inviteConfirmHandler*/
-            ctx[13]
+            ctx[14]
           ),
           listen(
             div3,
             "keypress",
             /*inviteConfirmHandler*/
-            ctx[13]
+            ctx[14]
           )
         ];
         mounted = true;
@@ -30650,9 +30762,12 @@ function create_fragment$1(ctx) {
   };
 }
 let loading = false;
+function isNumeric(str) {
+  return /^[0-9]+$/.test(str);
+}
 function instance$1($$self, $$props, $$invalidate) {
   let $notify;
-  component_subscribe($$self, notify, ($$value) => $$invalidate(30, $notify = $$value));
+  component_subscribe($$self, notify, ($$value) => $$invalidate(32, $notify = $$value));
   let { activeTabValue = 1 } = $$props;
   let { friendsTabActive = true } = $$props;
   let friendId = "";
@@ -30662,12 +30777,14 @@ function instance$1($$self, $$props, $$invalidate) {
   let friends = [];
   let token;
   let client;
+  let offerFee = 0;
   let isBaseNameExist;
   let isBaseNameExistPending;
   let debounceTimer;
   let debouncePendingTimer;
   let baseName;
   let baseNameAddress;
+  const coordinatorContract = tokenscript.eth.getContractInstance("messageCoordinator");
   context.data.subscribe(async (value) => {
     console.log(`Dump: ${JSON.stringify(value)}`);
     if (!value.token)
@@ -30696,19 +30813,42 @@ function instance$1($$self, $$props, $$invalidate) {
     }
     return friends2;
   }
+  async function populateFeeInv(invites2) {
+    const thisContractAddr = token.contractAddress;
+    const coordinatorContractAddr = coordinatorContract.target;
+    for (let i = 0; i < invites2.length; i++) {
+      const item = invites2[i];
+      let result = await getCommitmentData(coordinatorContractAddr, token.chainId, thisContractAddr, token.tokenId, item.sendingTokenId);
+      invites2[i].inviteCommitFee = result.value;
+    }
+    return invites2;
+  }
+  async function populateFee(invites2) {
+    const thisContractAddr = token.contractAddress;
+    const coordinatorContractAddr = coordinatorContract.target;
+    for (let i = 0; i < invites2.length; i++) {
+      const item = invites2[i];
+      let result = await getCommitmentData(coordinatorContractAddr, token.chainId, thisContractAddr, item.sendingTokenId, token.tokenId);
+      invites2[i].inviteCommitFee = result.value;
+    }
+    return invites2;
+  }
   async function getFriends() {
     const myFriends = await client.getApprovedFriend();
-    const populateFriends = await populateNames(myFriends, ownInvites);
+    const populateFriends = await populateNames(myFriends, []);
     return populateFriends;
   }
   async function populateFriendInvites() {
     const theseInvites = await client.getFriendInvites();
     await populateNames([], theseInvites);
-    return theseInvites;
+    const invitesWithFee = await populateFee(theseInvites);
+    return invitesWithFee;
   }
   async function loadOwnInvites() {
     try {
-      $$invalidate(4, ownInvites = await client.getOwnFriendInvites());
+      const currentInvites = await client.getOwnFriendInvites();
+      const populateFriends = await populateNames([], currentInvites);
+      $$invalidate(4, ownInvites = await populateFeeInv(currentInvites));
       $$invalidate(5, friends = await getFriends());
     } catch (e) {
       set_store_value(
@@ -30726,10 +30866,54 @@ function instance$1($$self, $$props, $$invalidate) {
     if (baseNameAddress == null) {
       console.log(`Address not resolved - should not be possible`);
     }
-    const tokenId = await resolveTokenId(name, token.contractAddress, baseNameAddress);
+    let tokenId;
+    if (isNumeric(name)) {
+      tokenId = name;
+    } else {
+      tokenId = await resolveTokenId(name, token.contractAddress, baseNameAddress);
+    }
     if (tokenId != null) {
       inviteFriend(tokenId);
     }
+  }
+  async function acceptInvite(localFriendId = "") {
+    showLoader.set(true);
+    try {
+      let t = web3.tokens.data.currentInstance;
+      console.log(`FR: ${localFriendId}`);
+      try {
+        localFriendId = BigInt(localFriendId).toString();
+      } catch (e) {
+        throw new Error("Invalid token ID. Number or hex string allowed only");
+      }
+      if (!localFriendId || !t.tokenId) {
+        throw new Error("TokenId missing");
+      }
+      console.log(`Message Coordinator: ${coordinatorContract.target}`);
+      for (let i = 0; i < invites.length; i++) {
+        const item = invites[i];
+        if (item.sendingTokenId === localFriendId) {
+          console.log(`FROMID ${item.sendingTokenId} FEE: ${item.inviteCommitFee}`);
+          tokenscript.action.setProps({ originId: item.sendingTokenId });
+          if (await tokenscript.action.executeTransaction("acceptFee")) {
+            console.log(`Executed accept function`);
+            const result = await client.postInviteFriendWithFee(localFriendId, coordinatorContract.target);
+            console.log({ result });
+            set_store_value(notify, $notify = { status: true, message: result.message }, $notify);
+            friendId = "";
+            await loadOwnInvites();
+            await loadInvites();
+          } else {
+            console.log(`Fail commit function`);
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      set_store_value(notify, $notify = { status: false, message: e.message }, $notify);
+      console.log(`ERRORR: ${e}`);
+    }
+    showLoader.set(false);
   }
   async function inviteFriend(localFriendId = "") {
     showLoader.set(true);
@@ -30744,12 +30928,23 @@ function instance$1($$self, $$props, $$invalidate) {
       if (!localFriendId || !t.tokenId) {
         throw new Error("TokenId missing");
       }
-      const result = await client.postInviteFriend(localFriendId);
-      console.log({ result });
-      set_store_value(notify, $notify = { status: true, message: result.message }, $notify);
-      friendId = "";
-      await loadOwnInvites();
-      await loadInvites();
+      console.log(`Message Coordinator: ${coordinatorContract.target}`);
+      let ethOffer = ethers.parseEther(offerFee.toString());
+      tokenscript.action.setProps({
+        targetId: localFriendId,
+        feeValue: ethOffer
+      });
+      if (await tokenscript.action.executeTransaction("commitFee")) {
+        console.log(`Executed commit function`);
+        const result = await client.postInviteFriendWithFee(localFriendId, coordinatorContract.target);
+        console.log({ result });
+        set_store_value(notify, $notify = { status: true, message: result.message }, $notify);
+        friendId = "";
+        await loadOwnInvites();
+        await loadInvites();
+      } else {
+        console.log(`Fail commit function`);
+      }
     } catch (e) {
       set_store_value(notify, $notify = { status: false, message: e.message }, $notify);
       console.log(`ERRORR: ${e}`);
@@ -30771,6 +30966,8 @@ function instance$1($$self, $$props, $$invalidate) {
     }
   };
   function inviteToNft(invite) {
+    const bigIntStr = invite.inviteCommitFee ? invite.inviteCommitFee.toString() : "0";
+    const fee = bigIntStr != "0" ? ethers.formatEther(bigIntStr) : "";
     return {
       unread: 0,
       contract: token.contractAddress,
@@ -30780,7 +30977,8 @@ function instance$1($$self, $$props, $$invalidate) {
       yourSharedKey: "",
       tokenId: invite.sendingTokenId,
       owner: invite.sendingAddress,
-      tokenIdName: cachedNames.get(invite.sendingTokenId)
+      tokenIdName: cachedNames.get(invite.sendingTokenId),
+      inviteCommitFee: fee
     };
   }
   function friendToNft(friend) {
@@ -30805,41 +31003,54 @@ function instance$1($$self, $$props, $$invalidate) {
     await loadOwnInvites();
   }
   const checkBaseName = async (event) => {
-    $$invalidate(8, baseName = event.target.value.toLowerCase());
+    $$invalidate(9, baseName = event.target.value.toLowerCase());
+    if (isNumeric(baseName)) {
+      $$invalidate(8, isBaseNameExistPending = void 0);
+      $$invalidate(7, isBaseNameExist = void 0);
+      baseNameAddress = null;
+      baseNameAddress = await resolveOwnerOfTokenId(baseName, token.chainId, token.contractAddress);
+      $$invalidate(7, isBaseNameExist = true);
+      $$invalidate(8, isBaseNameExistPending = false);
+      return;
+    }
     const suffix = ".base.eth";
     if (baseName.endsWith(suffix)) {
-      $$invalidate(8, baseName = baseName.replace(suffix, ""));
+      $$invalidate(9, baseName = baseName.replace(suffix, ""));
     }
-    $$invalidate(7, isBaseNameExistPending = void 0);
-    $$invalidate(6, isBaseNameExist = void 0);
+    $$invalidate(8, isBaseNameExistPending = void 0);
+    $$invalidate(7, isBaseNameExist = void 0);
     baseNameAddress = null;
     clearTimeout(debounceTimer);
     clearTimeout(debouncePendingTimer);
     debouncePendingTimer = setTimeout(
       () => {
-        $$invalidate(7, isBaseNameExistPending = true);
+        $$invalidate(8, isBaseNameExistPending = true);
       },
       500
     );
     debounceTimer = setTimeout(
       async () => {
         if (!(baseName == null ? void 0 : baseName.length)) {
-          $$invalidate(7, isBaseNameExistPending = void 0);
-          $$invalidate(6, isBaseNameExist = void 0);
+          $$invalidate(8, isBaseNameExistPending = void 0);
+          $$invalidate(7, isBaseNameExist = void 0);
           return;
         }
         try {
           baseNameAddress = await resolveOwner(baseName);
-          $$invalidate(6, isBaseNameExist = baseNameAddress !== null);
-          $$invalidate(7, isBaseNameExistPending = false);
+          $$invalidate(7, isBaseNameExist = baseNameAddress !== null);
+          $$invalidate(8, isBaseNameExistPending = false);
         } catch (error) {
-          $$invalidate(6, isBaseNameExist = false);
+          $$invalidate(7, isBaseNameExist = false);
         }
       },
       1e3
     );
   };
   const input_handler = (event) => checkBaseName(event);
+  function input_input_handler() {
+    offerFee = to_number(this.value);
+    $$invalidate(6, offerFee);
+  }
   const click_handler = () => {
     inviteContact(baseName);
   };
@@ -30859,7 +31070,7 @@ function instance$1($$self, $$props, $$invalidate) {
     $$invalidate(2, selectedInvite = invite.tokenId);
   };
   const click_handler_4 = () => {
-    selectedInvite != "-1" && inviteFriend(selectedInvite);
+    selectedInvite != "-1" && acceptInvite(selectedInvite);
   };
   $$self.$$set = ($$props2) => {
     if ("activeTabValue" in $$props2)
@@ -30874,17 +31085,19 @@ function instance$1($$self, $$props, $$invalidate) {
     invites,
     ownInvites,
     friends,
+    offerFee,
     isBaseNameExist,
     isBaseNameExistPending,
     baseName,
     inviteContact,
-    inviteFriend,
+    acceptInvite,
     inviteToNft,
     friendToNft,
     inviteConfirmHandler,
     friendsHandler,
     checkBaseName,
     input_handler,
+    input_input_handler,
     click_handler,
     click_handler_1,
     keypress_handler,

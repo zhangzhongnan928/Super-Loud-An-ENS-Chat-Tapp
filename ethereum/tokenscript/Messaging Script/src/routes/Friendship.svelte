@@ -4,7 +4,13 @@
 	import { showLoader, notify } from '../lib/storage';
 	import NftCard from '../components/NftCard.svelte';
 	import { MessageClient } from '../lib/messageClient';
-	import { resolveOwner, resolveTokenId, resolveNameFromTokenId } from '../lib/nameResolver';
+	import {
+		resolveOwner,
+		resolveTokenId,
+		resolveNameFromTokenId,
+		resolveOwnerOfTokenId,
+		getCommitmentData
+	} from '../lib/nameResolver';
 	import { cachedNames } from '../lib/context';
 
 	export let activeTabValue = 1;
@@ -21,13 +27,16 @@
 
 	let loading = false;
 	let client: MessageClient;
+	let offerFee = 0;
 
 	let isBaseNameExist: boolean | undefined;
 	let isBaseNameExistPending: boolean | undefined;
 	let debounceTimer: number | undefined;
 	let debouncePendingTimer: number | undefined;
 	let baseName: string | null;
-	let baseNameAddress: string | null
+	let baseNameAddress: string | null;
+
+	const coordinatorContract = tokenscript.eth.getContractInstance('messageCoordinator');
 
 	context.data.subscribe(async (value) => {
 		console.log(`Dump: ${JSON.stringify(value)}`);
@@ -64,22 +73,63 @@
 		return friends;
 	}
 
+	async function populateFeeInv(invites: Invite[]): Promise<Invite[]> {
+		const thisContractAddr = token.contractAddress;
+		const coordinatorContractAddr = coordinatorContract.target;
+
+		for (let i = 0; i < invites.length; i++) {
+			const item = invites[i];
+			let result = await getCommitmentData(
+				coordinatorContractAddr,
+				token.chainId,
+				thisContractAddr,
+				token.tokenId,
+				item.sendingTokenId
+			);
+			invites[i].inviteCommitFee = result.value;
+		}
+
+		return invites;
+	}
+
+	async function populateFee(invites: Invite[]): Promise<Invite[]> {
+		const thisContractAddr = token.contractAddress;
+		const coordinatorContractAddr = coordinatorContract.target;
+
+		for (let i = 0; i < invites.length; i++) {
+			const item = invites[i];
+			let result = await getCommitmentData(
+				coordinatorContractAddr,
+				token.chainId,
+				thisContractAddr,
+				item.sendingTokenId,
+				token.tokenId
+			);
+			invites[i].inviteCommitFee = result.value;
+		}
+
+		return invites;
+	}
+
 	async function getFriends(): Promise<Friend[]> {
 		const myFriends = await client.getApprovedFriend();
-		const populateFriends = await populateNames(myFriends, ownInvites);
+		const populateFriends = await populateNames(myFriends, []);
 		return populateFriends;
 	}
-	
+
 	async function populateFriendInvites(): Promise<Invite[]> {
 		const theseInvites = await client.getFriendInvites();
 		//fetch names if required
 		const populateFriends = await populateNames([], theseInvites);
-		return theseInvites;
+		const invitesWithFee = await populateFee(theseInvites);
+		return invitesWithFee;
 	}
 
 	async function loadOwnInvites() {
 		try {
-			ownInvites = await client.getOwnFriendInvites();
+			const currentInvites = await client.getOwnFriendInvites();
+			const populateFriends = await populateNames([], currentInvites);
+			ownInvites = await populateFeeInv(currentInvites);
 			friends = await getFriends();
 		} catch (e: any) {
 			$notify = { status: false, message: 'Message load failed: ' + e.message };
@@ -92,15 +142,20 @@
 			console.log(`Address not resolved - should not be possible`);
 		}
 
-		const tokenId = await resolveTokenId(name, token.contractAddress, baseNameAddress!);
+		let tokenId;
+
+		if (isNumeric(name)) {
+			tokenId = name;
+		} else {
+			tokenId = await resolveTokenId(name, token.contractAddress, baseNameAddress!);
+		}
 
 		if (tokenId != null) {
 			inviteFriend(tokenId);
 		}
 	}
 
-	async function inviteFriend(localFriendId: string = "") {
-
+	async function acceptInvite(localFriendId: string = '') {
 		showLoader.set(true);
 		try {
 			let t = web3.tokens.data.currentInstance;
@@ -116,15 +171,78 @@
 				throw new Error('TokenId missing');
 			}
 
-			const result = await client.postInviteFriend(localFriendId);
-			console.log({ result });
-			$notify = {status: true, message: result.message}
-			friendId = '';
-			await loadOwnInvites()
-			await loadInvites()
+			console.log(`Message Coordinator: ${coordinatorContract.target}`);
+
+			//find the invite entry
+			for (let i = 0; i < invites.length; i++) {
+				const item = invites[i];
+				//find the from Id
+				if (item.sendingTokenId === localFriendId) {
+					console.log(`FROMID ${item.sendingTokenId} FEE: ${item.inviteCommitFee}`);
+					//accept fee
+					tokenscript.action.setProps({ originId: item.sendingTokenId });
+					if (await tokenscript.action.executeTransaction('acceptFee')) {
+						console.log(`Executed accept function`);
+						const result = await client.postInviteFriendWithFee(
+							localFriendId,
+							coordinatorContract.target
+						);
+						console.log({ result });
+						$notify = { status: true, message: result.message };
+						friendId = '';
+						await loadOwnInvites();
+						await loadInvites();
+					} else {
+						console.log(`Fail commit function`);
+					}
+					break;
+				}
+			}
 		} catch (e) {
-			$notify = {status: false, message: e.message}
-			console.log(`ERRORR: ${e}`)
+			$notify = { status: false, message: e.message };
+			console.log(`ERRORR: ${e}`);
+		}
+		showLoader.set(false);
+	}
+
+	async function inviteFriend(localFriendId: string = '') {
+		showLoader.set(true);
+		try {
+			let t = web3.tokens.data.currentInstance;
+
+			console.log(`FR: ${localFriendId}`);
+
+			try {
+				localFriendId = BigInt(localFriendId).toString();
+			} catch (e) {
+				throw new Error('Invalid token ID. Number or hex string allowed only');
+			}
+			if (!localFriendId || !t.tokenId) {
+				throw new Error('TokenId missing');
+			}
+
+			console.log(`Message Coordinator: ${coordinatorContract.target}`);
+
+			let ethOffer = ethers.parseEther(offerFee.toString());
+
+			tokenscript.action.setProps({ targetId: localFriendId, feeValue: ethOffer });
+			if (await tokenscript.action.executeTransaction('commitFee')) {
+				console.log(`Executed commit function`);
+				const result = await client.postInviteFriendWithFee(
+					localFriendId,
+					coordinatorContract.target
+				);
+				console.log({ result });
+				$notify = { status: true, message: result.message };
+				friendId = '';
+				await loadOwnInvites();
+				await loadInvites();
+			} else {
+				console.log(`Fail commit function`);
+			}
+		} catch (e) {
+			$notify = { status: false, message: e.message };
+			console.log(`ERRORR: ${e}`);
 		}
 		showLoader.set(false);
 	}
@@ -138,6 +256,9 @@
 	};
 
 	function inviteToNft(invite: Invite) {
+		
+		const bigIntStr = invite.inviteCommitFee ? invite.inviteCommitFee.toString() : '0';
+		const fee = bigIntStr != '0' ? ethers.formatEther(bigIntStr) : '';
 		return {
 			unread: 0,
 			contract: token.contractAddress,
@@ -148,6 +269,7 @@
 			tokenId: invite.sendingTokenId,
 			owner: invite.sendingAddress,
 			tokenIdName: cachedNames.get(invite.sendingTokenId),
+			inviteCommitFee: fee
 		} as ThreadItem;
 	}
 
@@ -161,8 +283,9 @@
 			friendsSharedKey: '',
 			yourSharedKey: '',
 			tokenId:
-			friend.sendingTokenId == token.tokenId ? friend.receivingTokenId : friend.sendingTokenId,
-			owner: friend.sendingTokenId == token.tokenId ? friend.receivingAddress : friend.sendingAddress
+				friend.sendingTokenId == token.tokenId ? friend.receivingTokenId : friend.sendingTokenId,
+			owner:
+				friend.sendingTokenId == token.tokenId ? friend.receivingAddress : friend.sendingAddress
 		} as ThreadItem;
 	}
 
@@ -176,8 +299,25 @@
 		await loadOwnInvites();
 	}
 
+	function isNumeric(str: string): boolean {
+		return /^[0-9]+$/.test(str);
+	}
+
 	const checkBaseName = async (event: Event) => {
 		baseName = (event.target as HTMLInputElement).value.toLowerCase();
+
+		//is numeric only?
+		if (isNumeric(baseName)) {
+			isBaseNameExistPending = undefined;
+			isBaseNameExist = undefined;
+			baseNameAddress = null;
+
+			//get owner
+			baseNameAddress = await resolveOwnerOfTokenId(baseName, token.chainId, token.contractAddress);
+			isBaseNameExist = true;
+			isBaseNameExistPending = false;
+			return;
+		}
 
 		const suffix = '.base.eth';
 		if (baseName.endsWith(suffix)) {
@@ -195,7 +335,6 @@
 		}, 500);
 		// @ts-ignore
 		debounceTimer = setTimeout(async () => {
-
 			if (!baseName?.length) {
 				isBaseNameExistPending = undefined;
 				isBaseNameExist = undefined;
@@ -260,12 +399,23 @@
 						</div>
 					{/if}
 					{#if isBaseNameExist === true && !isBaseNameExistPending}
-							<div style="font-size: 14px; padding: 12px 4px; border-radius: 20px;">
-								<p>✅ {baseName} is available for messaging</p>
-							</div>
+						<div style="font-size: 14px; padding: 12px 4px; border-radius: 20px;">
+							<p>✅ {baseName} is available for messaging</p>
+						</div>
+						<div class="description">Offer amount for friend request (can be zero).</div>
+						<input
+							type="number"
+							id="offer-input"
+							required
+							bind:value={offerFee}
+							disabled={loading}
+							placeholder="Offer Fee in $BASE"
+						/>
 					{/if}
 					<div
-						class="btn-gradient {isBaseNameExist === true && !isBaseNameExistPending ? 'active' : ''}"
+						class="btn-gradient {isBaseNameExist === true && !isBaseNameExistPending
+							? 'active'
+							: ''}"
 						on:click={() => {
 							inviteContact(baseName);
 						}}
@@ -342,7 +492,7 @@
 					class="accept btn-gradient
 					{selectedInvite == '-1' ? 'disabled' : ''}"
 					on:click={() => {
-						selectedInvite != '-1' && inviteFriend(selectedInvite);
+						selectedInvite != '-1' && acceptInvite(selectedInvite);
 					}}
 				>
 					Accept Request
