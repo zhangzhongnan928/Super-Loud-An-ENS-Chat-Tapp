@@ -81,11 +81,12 @@ To set up the Super Loud development environment:
 ## Usage
 Super Loud can be accessed and used on various platforms. Here are some examples:
 
-1. On Twitter: [Explain how to access and use Super Loud via Twitter]
-2. On Farcaster: [Explain how to access and use Super Loud via Farcaster]
-3. On Telegram: [Explain how to access and use Super Loud via Telegram]
-4. In a Smart Token viewer: [Explain how to access and use Super Loud in a Smart Token viewer]
-5. In wallet interfaces: [Explain how to access and use Super Loud in wallet interfaces]
+1. On Twitter: [Example on Twitter feed](https://x.com/Victor928/status/1837417853873803530)
+* [Need to install tapp link Extension](https://chromewebstore.google.com/detail/tlink/eblnpllcmmepkmpaalggpibindkplcjj)
+2. On Farcaster: [Example on Farcaster as frame](https://warpcast.com/victor928/0x42f4b5e9)
+3. On Telegram: [Example on Telegram as mini app](https://t.me/SmartLayerBot/SmartTokenViewer/?startapp=dmlld1R5cGU9am95aWQtdG9rZW4mY2hhaW49ODQ1MyZ0b2tlbklkPTIxOTMwOTkwNTA4Mzk2MjM1MTg0MTI4NTIxMzIzMjA0MjE5NjE0ODU2MjM5MDczMTczMjgzOTk4ODM3Mzk4ODg1NjQ5MTcwMjM4NzYmY29udHJhY3Q9MHgwM2M0NzM4ZWU5OGFlNDQ1OTFlMWE0YTRmM2NhYjY2NDFkOTVkZDlh)
+4. In a Smart Token viewer: [Example in Smart Token Viewer](https://viewer.tokenscript.org/?chain=8453&contract=0x03c4738ee98ae44591e1a4a4f3cab6641d95dd9a&scriptId=7738_2&tokenId=2193099050839623518412852132320421961485623907317328399883739888564917023876)
+5. In wallet interfaces: [Example in Joy.ID wallet interface](https://app.joy.id/evm-nft/8453/0x03c4738ee98ae44591e1a4a4f3cab6641d95dd9a/2193099050839623518412852132320421961485623907317328399883739888564917023876)
 6. On NFT marketplaces: [Explain how to access and use Super Loud on NFT marketplaces]
 
 [Provide more detailed usage instructions for each platform]
