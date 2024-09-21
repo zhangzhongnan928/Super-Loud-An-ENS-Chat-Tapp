@@ -63,7 +63,7 @@ We use TokenScript to define the behavior and interface of Super Loud. The Token
 3. Upon acceptance, both parties can start messaging each other with end-to-end encryption.
 4. Each successful friend request grants both parties 100 Super Loud Tokens (SLT).
 5. If ETH is included in the request, the protocol takes a 1% fee.
-6. Additional SLT are awarded based on the ETH amount: (ETH amount / 3000) * 10000 SLT.
+6. Additional SLT are awarded based on the ETH amount: (ETH amount * 3000)* 1000 SLT.
 
 ## Token Utility
 Super Loud Tokens (SLT) can be used for:
