@@ -4,7 +4,7 @@
 #### I don't want to read the doc, I want to try it now, click [here](https://github.com/zhangzhongnan928/Super-Loud-An-ENS-Chat-Tapp/blob/main/README.md#usage)
 
 ## Description
-Super Loud is a cross-platform mini-app (Tapp) built on top of ENS name NFTs. It uses the Tapp framework (ERC-7738/5169 + TokenScript) to enable ENS users to connect, chat, and earn tokens. 
+Super Loud is a cross-platform mini-app (Tapp) built on top of ENS name NFTs. It uses the [Tapp framework](https://sln-doc.vercel.app/getting-started/quick-start) (ERC-7738/5169 + TokenScript) to enable ENS users to connect, chat, and earn tokens. 
 
 ## Cross-Platform Accessibility
 As a Tapp, Super Loud embodies the principle of "build once, run anywhere". After a single development process, Super Loud can be accessed from various platforms, including:
