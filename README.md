@@ -95,9 +95,9 @@ Super Loud can be accessed and used on various platforms. Here are some examples
 
 
 ## Roadmap
-✅ Implement Tapp framework integration (ERC-7738/5169 + TokenScript) (Completed)
-✅ Develop ENS-based friend request system
-✅ Implement E2E encrypted messaging
+- ✅ Implement Tapp framework integration (ERC-7738/5169 + TokenScript) (Completed)
+- ✅ Develop ENS-based friend request system
+- ✅ Implement E2E encrypted messaging
 - Create and integrate Super Loud Token (SLT) reward system
 - Expand token utility features (voting, reputation, services)
 
