@@ -93,27 +93,11 @@ Super Loud can be accessed and used on various platforms. Here are some examples
 5. In wallet interfaces: [Example in Joy.ID wallet interface](https://app.joy.id/evm-nft/8453/0x03c4738ee98ae44591e1a4a4f3cab6641d95dd9a/2193099050839623518412852132320421961485623907317328399883739888564917023876)
 6. On NFT marketplaces: [Example on NFT Marketplace MOOAR](https://mooar.com/item/0x03c4738Ee98aE44591e1A4A4F3CaB6641d95DD9a/2193099050839623518412852132320421961485623907317328399883739888564917023876)
 
-## Contributing
-We welcome contributions to Super Loud. Please read our contributing guidelines before submitting pull requests.
-
-To contribute:
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit your changes: `git commit -m 'Add some AmazingFeature'`
-4. Push to the branch: `git push origin feature/AmazingFeature`
-5. Open a pull request
-
-## License
-[Specify your project's license here]
-
-## Contact
-[Provide contact information or links to project communication channels]
 
 ## Roadmap
-- Implement Tapp framework integration (ERC-7738/5169 + TokenScript) (Completed)
-- Develop ENS-based friend request system
-- Implement E2E encrypted messaging
+✅ Implement Tapp framework integration (ERC-7738/5169 + TokenScript) (Completed)
+✅ Develop ENS-based friend request system
+✅ Implement E2E encrypted messaging
 - Create and integrate Super Loud Token (SLT) reward system
 - Expand token utility features (voting, reputation, services)
-- Extend support to multiple platforms and wallets
 
