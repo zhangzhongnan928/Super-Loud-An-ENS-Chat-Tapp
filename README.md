@@ -82,7 +82,7 @@ To set up the Super Loud development environment:
 
 ## Usage
 Super Loud can be accessed and used on various platforms. Here are some examples:
-#### (To use Super Loud, you need to have a Base ENS name, like xxx.base.eth)
+#### (To use Super Loud, you need to have a Base ENS name, like xxx.base.eth, you can get one from [Basenames](https://www.base.org/names))
 
 1. In a Smart Token viewer: [Example in Smart Token Viewer](https://viewer.tokenscript.org/?chain=8453&contract=0x03c4738ee98ae44591e1a4a4f3cab6641d95dd9a&scriptId=7738_2&tokenId=2193099050839623518412852132320421961485623907317328399883739888564917023876)
 2. On Twitter: [Example on Twitter feed](https://x.com/Victor928/status/1837417853873803530) ##### [Need to install tapp link Extension](https://chromewebstore.google.com/detail/tlink/eblnpllcmmepkmpaalggpibindkplcjj)
